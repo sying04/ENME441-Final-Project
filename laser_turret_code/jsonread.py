@@ -1,7 +1,7 @@
 import socket
 
 host = "http://192.168.1.254/"
-port = "8000"
+port = 8000
 def read(host,port):
     c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     c.connect((host,port))
