@@ -20,7 +20,7 @@ def web_page():
             <title>Motor Control</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 20px; }}
-                .led-control {{ margin-bottom: 20px; }}
+                .motor-control {{ margin-bottom: 20px; }}
                 label {{ font-weight: bold; }}
             </style>
         </head>
@@ -55,7 +55,7 @@ def web_page():
 
                 // Attach input event listeners to all sliders
                 for (let i = 1; i < 3; i++) {{
-                    const slider = document.getElementById(`motor${{i}}`);
+                    const slider = document.getElementById(`m${{i}}`);
                     const valueSpan = document.getElementById(`val${{i}}`);
 
                     slider.addEventListener("input", function() {{
@@ -99,6 +99,11 @@ def serve_web_page():
             try:
                 motor = int(data_dict["motor"]) # which LED to change
                 angle = int(data_dict["angle"]) # value from slider
+
+                if motor == 1:
+                    m1.goAngle(angle)
+                else:
+                    m2.goAngle(angle)
             except Exception as e:  
                 print("parsing error:", e)
 
@@ -124,20 +129,20 @@ webpageThread.start()
 
 if __name__ == '__main__':
 
-    shifter = Shifter(data=16,latch=20,clock=21)   # set up Shifter
+    shift_reg = Shifter(data=16,latch=20,clock=21)   # set up Shifter
 
     # Use multiprocessing.Lock() to prevent motors from trying to 
     # execute multiple operations at the same time:
     lock1 = multiprocessing.Lock()
     lock2 = multiprocessing.Lock()
     # Instantiate 2 Steppers:
-    m1 = Stepper(shifter, lock1)
-    m2 = Stepper(shifter, lock2)
+    m1 = Stepper(shift_reg, lock1)
+    m2 = Stepper(shift_reg, lock2)
 
-    #lab 8 part 3
+    # lab 8 part 3
     m1.zero() 
     m2.zero() 
-    m1.goAngle(45) 
+    # m1.goAngle(45) 
     m2.goAngle(45)
     print("done")
     # While the motors are running in their separate processes, the main
