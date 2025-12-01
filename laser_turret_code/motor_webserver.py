@@ -124,21 +124,21 @@ webpageThread.start()
 
 if __name__ == '__main__':
 
-    s = Shifter(data=16,latch=20,clock=21)   # set up Shifter
+    shifter = Shifter(data=16,latch=20,clock=21)   # set up Shifter
 
     # Use multiprocessing.Lock() to prevent motors from trying to 
     # execute multiple operations at the same time:
     lock1 = multiprocessing.Lock()
     lock2 = multiprocessing.Lock()
     # Instantiate 2 Steppers:
-    m1 = Stepper(s, lock1)
-    m2 = Stepper(s, lock2)
+    m1 = Stepper(shifter, lock1)
+    m2 = Stepper(shifter, lock2)
 
     #lab 8 part 3
     m1.zero() 
     m2.zero() 
     m1.goAngle(45) 
-    m1.goAngle(45)
+    m2.goAngle(45)
     print("done")
     # While the motors are running in their separate processes, the main
     # code can continue doing its thing: 
