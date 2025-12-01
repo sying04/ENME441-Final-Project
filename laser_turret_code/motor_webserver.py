@@ -29,14 +29,14 @@ def web_page():
 
             <div class="motor-control">
                 <label for="motor0">Motor 1 (Yaw):</label>
-                <input type="range" id="motor0" min="0" max="100" value="0">
-                <span id="val0">0</span>%
+                <input type="range" id="motor0" min="0" max="360" value="0">
+                <span id="val0">0</span>
             </div>
 
             <div class="motor-control">
                 <label for="motor1">Motor 2 (Pitch):</label>
-                <input type="range" id="motor1" min="0" max="100" value="0">
-                <span id="val1">0</span>%
+                <input type="range" id="motor1" min="0" max="360" value="0">
+                <span id="val1">0</span>
             </div>
 
             <script>
@@ -139,12 +139,9 @@ if __name__ == '__main__':
     m1 = Stepper(shift_reg, lock1)
     m2 = Stepper(shift_reg, lock2)
 
-    # lab 8 part 3
     m1.zero() 
     m2.zero() 
-    # m1.goAngle(45) 
-    m2.goAngle(45)
-    print("done")
+
     # While the motors are running in their separate processes, the main
     # code can continue doing its thing: 
     try:
@@ -152,11 +149,6 @@ if __name__ == '__main__':
             pass
     except:
         print('\nend')
-
-try:
-    while True:
-        sleep(1)
-        # print('.')
 
 except KeyboardInterrupt:
     print('Closing socket')
