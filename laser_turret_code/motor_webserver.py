@@ -147,12 +147,10 @@ if __name__ == '__main__':
     try:
         while True:
             pass
-    except:
-        print('\nend')
+    except KeyboardInterrupt:
+        print('Closing socket')
+        s.close()
+        GPIO.cleanup() 
+        print('Joining webpageThread')
+        webpageThread.join()
 
-except KeyboardInterrupt:
-    print('Closing socket')
-    s.close()
-    GPIO.cleanup() 
-    print('Joining webpageThread')
-    webpageThread.join()
