@@ -28,14 +28,14 @@ def web_page():
             <h1>Motor Control</h1>
 
             <div class="motor-control">
-                <label for="m1">Motor 1 (Yaw):</label>
-                <input type="range" id="m1" min="0" max="100" value="0">
+                <label for="motor0">Motor 1 (Yaw):</label>
+                <input type="range" id="motor0" min="0" max="100" value="0">
                 <span id="val0">0</span>%
             </div>
 
             <div class="motor-control">
-                <label for="m2">Motor 2 (Pitch:</label>
-                <input type="range" id="m2" min="0" max="100" value="0">
+                <label for="motor1">Motor 2 (Pitch):</label>
+                <input type="range" id="motor1" min="0" max="100" value="0">
                 <span id="val1">0</span>%
             </div>
 
@@ -54,8 +54,8 @@ def web_page():
                 }}
 
                 // Attach input event listeners to all sliders
-                for (let i = 1; i < 3; i++) {{
-                    const slider = document.getElementById(`m${{i}}`);
+                for (let i = 0; i < 2; i++) {{
+                    const slider = document.getElementById(`motor${{i}}`);
                     const valueSpan = document.getElementById(`val${{i}}`);
 
                     slider.addEventListener("input", function() {{
@@ -97,10 +97,10 @@ def serve_web_page():
         if client_message.startswith('POST'): # only post messages !!!
             data_dict = parsePOSTdata(client_message)
             try:
-                motor = int(data_dict["motor"]) # which LED to change
+                motor = int(data_dict["selected_motor"]) # which LED to change
                 angle = int(data_dict["angle"]) # value from slider
 
-                if motor == 1:
+                if motor == 0:
                     m1.goAngle(angle)
                 else:
                     m2.goAngle(angle)
