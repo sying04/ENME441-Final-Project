@@ -1,13 +1,14 @@
-# used webserver_threaded.py and web_gpio_POST.py as templates to start from
-# website made with assistance from chatGPT
-
 import socket
 import RPi.GPIO as GPIO
 import threading
+import multiprocessing
+
 from time import sleep
+from shifter import Shifter
 from motorcontrol import Stepper
 
 GPIO.setmode(GPIO.BCM)
+
 
 # Generate HTML for the web page:
 def web_page():
