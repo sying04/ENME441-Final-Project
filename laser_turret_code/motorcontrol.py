@@ -1,36 +1,8 @@
-# stepper_class_shiftregister_multiprocessing.py
-#
-# Stepper class
-#
-# Because only one motor action is allowed at a time, multithreading could be
-# used instead of multiprocessing. However, the GIL makes the motor process run 
-# too slowly on the Pi Zero, so multiprocessing is needed.
-
 import time
 import multiprocessing
 from shifter import Shifter   # our custom Shifter class
 
 class Stepper:
-    """
-    Supports operation of an arbitrary number of stepper motors using
-    one or more shift registers.
-  
-    A class attribute (shifter_outputs) keeps track of all
-    shift register output values for all motors.  In addition to
-    simplifying sequential control of multiple motors, this schema also
-    makes simultaneous operation of multiple motors possible.
-   
-    Motor instantiation sequence is inverted from the shift register outputs.
-    For example, in the case of 2 motors, the 2nd motor must be connected
-    with the first set of shift register outputs (Qa-Qd), and the 1st motor
-    with the second set of outputs (Qe-Qh). This is because the MSB of
-    the register is associated with Qa, and the LSB with Qh (look at the code
-    to see why this makes sense).
- 
-    An instance attribute (shifter_bit_start) tracks the bit position
-    in the shift register where the 4 control bits for each motor
-    begin.
-    """
 
     # Class attributes:
     num_steppers = 0      # track number of Steppers instantiated
@@ -86,8 +58,6 @@ class Stepper:
             diff = diff - 360.0
         self.rotate(diff)
 
-         # COMPLETE THIS METHOD FOR LAB 8
-
     # Set the motor zero point
     def zero(self):
         self.angle.value = 0
@@ -110,20 +80,6 @@ if __name__ == '__main__':
     # Zero the motors:
     m1.zero()
     m2.zero()
-
-    # Move as desired, with eacg step occuring as soon as the previous 
-    # step ends:
-    m1.rotate(-90)
-    m1.rotate(45)
-    m1.rotate(-90)
-    m1.rotate(45)
-
-    # If separate multiprocessing.lock objects are used, the second motor
-    # will run in parallel with the first motor:
-    m2.rotate(180)
-    m2.rotate(-45)
-    m2.rotate(45)
-    m2.rotate(-90)
 
     #lab 8 part 3
     m1.zero() 
