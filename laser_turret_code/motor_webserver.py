@@ -1,3 +1,4 @@
+import json
 import socket
 import RPi.GPIO as GPIO
 import threading
@@ -20,8 +21,8 @@ def web_page():
         <h2>Two-Axis Control (Pitch + Yaw)</h2>
 
         <!-- Angle Readouts -->
-        <h3>Pitch Angle: <span id="pitch-angle">?</span>°</h3>
-        <h3>Yaw Angle: <span id="yaw-angle">?</span>°</span></h3>
+        <h3>Pitch Angle: <span id="pitch-angle">?</span>(deg)</h3>
+        <h3>Yaw Angle: <span id="yaw-angle">?</span>(deg)</span></h3>
 
         <!-- Step Inputs -->
         <div>
@@ -39,17 +40,17 @@ def web_page():
         <table border="0" cellpadding="10">
           <tr>
             <td></td>
-            <td><button onclick="movePitch(1)">▲ Pitch +</button></td>
+            <td><button onclick="movePitch(1)">Up</button></td>
             <td></td>
           </tr>
           <tr>
-            <td><button onclick="moveYaw(-1)">◀ Yaw -</button></td>
+            <td><button onclick="moveYaw(-1)">Left</button></td>
             <td></td>
-            <td><button onclick="moveYaw(1)">▶ Yaw +</button></td>
+            <td><button onclick="moveYaw(1)">Right</button></td>
           </tr>
           <tr>
             <td></td>
-            <td><button onclick="movePitch(-1)">▼ Pitch -</button></td>
+            <td><button onclick="movePitch(-1)">Down-</button></td>
             <td></td>
           </tr>
         </table>
@@ -109,6 +110,7 @@ def web_page():
     return (bytes(html,'utf-8'))   # convert html string to UTF-8 bytes object
 
 # Helper function to extract key,value pairs of POST data
+"""
 def parsePOSTdata(data):
     data_dict = {}
     idx = data.find('\r\n\r\n')+4
@@ -119,6 +121,17 @@ def parsePOSTdata(data):
         if len(key_val) == 2:
             data_dict[key_val[0]] = key_val[1]
     return data_dict
+"""
+
+# New parser w/ JSON
+def parseJSONbody(request_text):
+    # Find body start
+    idx = request_text.find('\r\n\r\n') + 4
+    body = request_text[idx:]
+    try:
+        return json.loads(body)
+    except Exception:
+        return {}
 
 # Serve the web page to a client on connection:
 def serve_web_page():
@@ -130,20 +143,50 @@ def serve_web_page():
         # print(f'Connection from {client_ip}')
         client_message = conn.recv(2048).decode('utf-8')
 
-        if client_message.startswith('POST'): # only post messages !!!
-            print(f'Message from client:\n{client_message}')
+        request_line = client_message.split('\n')[0]
+        method, path, _ = request_line.split()
 
-            data_dict = parsePOSTdata(client_message)
-            try:
-                axis = int(data_dict["axis"])
-                delta = int(data_dict["delta"])
+        if path == "/pos":
+            response = json.dumps({
+               "pitch": m2.getAngle(),
+               "yaw": m1.getAngle()
+            })
+            conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n")
+            conn.send(response.encode())
+            conn.close()
+            continue
 
-                if axis == "yaw":
-                    m1.rotate(delta / 4096.0 * 360.0)
-                elif axis == "pitch":
-                    m2.rotate(delta / 4096.0 * 360.0)
-            except Exception as e:  
-                print("Parsing error: ", e)
+        elif path == "/move" and method == "POST":
+            data = parseJSONbody(client_message)
+            axis = data.get("axis")
+            delta = data.get("delta")
+
+            if axis == "yaw":
+                m1.rotate(delta / 4096.0 * 360.0)
+            elif axis == "pitch":
+                m2.rotate(delta / 4096.0 * 360.0)
+
+            conn.send(b"HTTP/1.1 200 OK\r\n\r\nOK")
+            conn.close()
+            continue
+
+        elif path == "/zero" and method == "POST":
+            data = parseJSONbody(client_message)
+            axis = data.get("axis")
+
+            if axis == "yaw":
+                m1.zero()
+            elif axis == "pitch":
+                m2.zero()
+
+            conn.send(b"HTTP/1.1 200 OK\r\n\r\nOK")
+            conn.close()
+            continue
+
+        # default → send webpage
+        conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n")
+        conn.sendall(web_page())
+        conn.close()
 
         conn.send(b'HTTP/1.1 200 OK\n')         # status line
         conn.send(b'Content-type: text/html\r\n') # header (content type)
