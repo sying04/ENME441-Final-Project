@@ -101,8 +101,10 @@ def serve_web_page():
                 angle = int(data_dict["angle"]) # value from slider
 
                 if motor == 0:
+                    print("Motor 1 going to: " + angle)
                     m1.goAngle(angle)
                 else:
+                    print("Motor 2 going to: " + angle)
                     m2.goAngle(angle)
             except Exception as e:  
                 print("parsing error:", e)
@@ -139,11 +141,8 @@ if __name__ == '__main__':
     m1 = Stepper(shift_reg, lock1)
     m2 = Stepper(shift_reg, lock2)
 
-    m1.zero() 
+    m1.zero()
     m2.zero() 
-
-    m1.goAngle(45)
-    m1.goAngle(0)
 
     # While the motors are running in their separate processes, the main
     # code can continue doing its thing: 
