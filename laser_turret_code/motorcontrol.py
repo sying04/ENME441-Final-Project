@@ -62,3 +62,6 @@ class Stepper:
     def zero(self):
         self.angle.value = 0
 
+    # helper function to get the motor's current angle
+    def getAngle(self):
+        return self.angle.value

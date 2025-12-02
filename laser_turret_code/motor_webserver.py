@@ -101,10 +101,8 @@ def serve_web_page():
                 angle = int(data_dict["angle"]) # value from slider
 
                 if motor == 0:
-                    print("Motor 1 going to: " + angle)
                     m1.goAngle(angle)
                 else:
-                    print("Motor 2 going to: " + angle)
                     m2.goAngle(angle)
             except Exception as e:  
                 print("parsing error:", e)
