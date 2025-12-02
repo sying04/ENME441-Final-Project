@@ -186,7 +186,7 @@ def serve_web_page():
             continue
 
         #  send webpage by default
-        conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n")
+        conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n")
         try:
             conn.sendall(web_page())                  # body
         finally:
