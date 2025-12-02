@@ -123,29 +123,27 @@ def parsePOSTdata(data):
 # Serve the web page to a client on connection:
 def serve_web_page():
     while True:
-        print('Waiting for connection...')
+        # print('Waiting for connection...')
         conn, (client_ip, client_port) = s.accept()     # blocking call
 
         # post request stuff
-        print(f'Connection from {client_ip}')
+        # print(f'Connection from {client_ip}')
         client_message = conn.recv(2048).decode('utf-8')
-        if(client_message.startswith('POST')):
+
+        if client_message.startswith('POST'): # only post messages !!!
             print(f'Message from client:\n{client_message}')
 
-        """
-        if client_message.startswith('POST'): # only post messages !!!
             data_dict = parsePOSTdata(client_message)
             try:
-                motor = int(data_dict["selected_motor"])
-                angle = int(data_dict["angle"])
+                axis = int(data_dict["axis"])
+                delta = int(data_dict["delta"])
 
-                if motor == 0:
-                    m1.goAngle(angle)
-                else:
-                    m2.goAngle(angle)
+                if axis == "yaw":
+                    m1.rotate(delta / 4096.0 * 360.0)
+                elif axis == "pitch":
+                    m2.rotate(delta / 4096.0 * 360.0)
             except Exception as e:  
                 print("Parsing error: ", e)
-        """
 
         conn.send(b'HTTP/1.1 200 OK\n')         # status line
         conn.send(b'Content-type: text/html\r\n') # header (content type)
@@ -199,9 +197,9 @@ if __name__ == '__main__':
         while True:
             pass
     except KeyboardInterrupt:
+        GPIO.cleanup() 
         print('Closing socket')
         s.close()
-        GPIO.cleanup() 
         print('Joining webpageThread')
         webpageThread.join()
 
