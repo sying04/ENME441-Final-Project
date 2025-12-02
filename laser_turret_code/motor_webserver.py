@@ -123,7 +123,9 @@ def parsePOSTdata(data):
     return data_dict
 """
 
+# ==========================
 # New parser w/ JSON
+# ==========================
 def parseJSONbody(request_text):
     # Find body start
     idx = request_text.find('\r\n\r\n') + 4
@@ -185,22 +187,14 @@ def serve_web_page():
 
         # default → send webpage
         conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n")
-        conn.sendall(web_page())
-        conn.close()
-
-        conn.send(b'HTTP/1.1 200 OK\n')         # status line
-        conn.send(b'Content-type: text/html\r\n') # header (content type)
-        conn.send(b'Connection: close\r\n\r\n') # header (tell client to close at end)
-        # send body in try block in case connection is interrupted:
         try:
             conn.sendall(web_page())                  # body
         finally:
             conn.close()
 
-
-
-
+# ==========================
 # webserver setup
+# ==========================
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # address reuse
 s.bind(('', 8080))
@@ -210,10 +204,9 @@ webpageThread = threading.Thread(target=serve_web_page)
 webpageThread.daemon = True
 webpageThread.start()
 
-
-
-
+# ==========================
 # Motor control/setup
+# ==========================
 if __name__ == '__main__':
 
     shift_reg = Shifter(data=16,latch=20,clock=21)   # set up Shifter
