@@ -15,56 +15,93 @@ def web_page():
     # taken & modified from ChatGPT
     html = f""" 
         <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Motor Control</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; margin: 20px; }}
-                .motor-control {{ margin-bottom: 20px; }}
-                label {{ font-weight: bold; }}
-            </style>
-        </head>
         <body>
-            <h1>Motor Control</h1>
 
-            <div class="motor-control">
-                <label for="motor0">Motor 1 (Yaw):</label>
-                <input type="range" id="motor0" min="0" max="360" value="0">
-                <span id="val0">0</span>
-            </div>
+        <h2>Two-Axis Control (Pitch + Yaw)</h2>
 
-            <div class="motor-control">
-                <label for="motor1">Motor 2 (Pitch):</label>
-                <input type="range" id="motor1" min="0" max="360" value="0">
-                <span id="val1">0</span>
-            </div>
+        <!-- Angle Readouts -->
+        <h3>Pitch Angle: <span id="pitch-angle">?</span>°</h3>
+        <h3>Yaw Angle: <span id="yaw-angle">?</span>°</span></h3>
 
-            <script>
-                function updateAngles(motor, angle) {{
-                    fetch("/", {{
-                        method: "POST",
-                        headers: {{ "Content-Type": "application/x-www-form-urlencoded" }},
-                        body: `selected_motor=${{motor}}&angle=${{angle}}`
-                    }})
-                    .then(response => response.text())
-                    .then(data => {{
-                        console.log(`Motor ${{motor}} pointed towards to ${{angle}}`);
-                    }})
-                    .catch(error => console.error("Error:", error));
-                }}
+        <!-- Step Inputs -->
+        <div>
+          Pitch Step: <input id="pitch-step" type="number" value="50"><br><br>
+          Yaw Step: <input id="yaw-step" type="number" value="50"><br><br>
+        </div>
 
-                // Attach input event listeners to all sliders
-                for (let i = 0; i < 2; i++) {{
-                    const slider = document.getElementById(`motor${{i}}`);
-                    const valueSpan = document.getElementById(`val${{i}}`);
+        <!-- Zero Buttons -->
+        <button onclick="zeroAxis('pitch')">Zero Pitch</button>
+        <button onclick="zeroAxis('yaw')">Zero Yaw</button>
 
-                    slider.addEventListener("input", function() {{
-                        const angle = slider.value;
-                        valueSpan.textContent = angle; // Update displayed value
-                        updateAngles(i, angle);           // Send POST request
-                    }});
-                }}
-            </script>
+        <br><br>
+
+        <!-- D-Pad -->
+        <table border="0" cellpadding="10">
+          <tr>
+            <td></td>
+            <td><button onclick="movePitch(1)">▲ Pitch +</button></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><button onclick="moveYaw(-1)">◀ Yaw -</button></td>
+            <td></td>
+            <td><button onclick="moveYaw(1)">▶ Yaw +</button></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><button onclick="movePitch(-1)">▼ Pitch -</button></td>
+            <td></td>
+          </tr>
+        </table>
+
+        <script>
+        // === POLLING ===
+        async function updatePositions() {{
+          try {{
+            let res = await fetch("/pos");
+            let data = await res.json();
+
+            document.getElementById("pitch-angle").textContent = data.pitch;
+            document.getElementById("yaw-angle").textContent = data.yaw;
+
+          }} catch (e) {{
+            console.log("Couldn't read positions");
+          }}
+        }}
+        setInterval(updatePositions, 500);
+        updatePositions();
+
+        // === MOVE FUNCTIONS ===
+        async function movePitch(direction) {{
+          let step = Number(document.getElementById("pitch-step").value);
+          await sendMove("pitch", direction * step);
+        }}
+
+        async function moveYaw(direction) {{
+          let step = Number(document.getElementById("yaw-step").value);
+          await sendMove("yaw", direction * step);
+        }}
+
+        async function sendMove(axis, delta) {{
+          await fetch("/move", {{
+            method: "POST",
+            headers: {{ "Content-Type": "application/json" }},
+            body: JSON.stringify({{ axis: axis, delta: delta }})
+          }});
+          updatePositions();
+        }}
+
+        // === ZERO AXIS ===
+        async function zeroAxis(axis) {{
+          await fetch("/zero", {{
+            method: "POST",
+            headers: {{ "Content-Type": "application/json" }},
+            body: JSON.stringify({{ axis: axis }})
+          }});
+          updatePositions();
+        }}
+        </script>
+
         </body>
         </html>
         """
@@ -94,18 +131,20 @@ def serve_web_page():
         client_message = conn.recv(2048).decode('utf-8')
         print(f'Message from client:\n{client_message}')
 
+        """
         if client_message.startswith('POST'): # only post messages !!!
             data_dict = parsePOSTdata(client_message)
             try:
-                motor = int(data_dict["selected_motor"]) # which LED to change
-                angle = int(data_dict["angle"]) # value from slider
+                motor = int(data_dict["selected_motor"])
+                angle = int(data_dict["angle"])
 
                 if motor == 0:
                     m1.goAngle(angle)
                 else:
                     m2.goAngle(angle)
             except Exception as e:  
-                print("parsing error:", e)
+                print("Parsing error: ", e)
+        """
 
         conn.send(b'HTTP/1.1 200 OK\n')         # status line
         conn.send(b'Content-type: text/html\r\n') # header (content type)
@@ -116,7 +155,10 @@ def serve_web_page():
         finally:
             conn.close()
 
-# socket !!!
+
+
+
+# webserver setup
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # address reuse
 s.bind(('', 8080))
@@ -127,6 +169,9 @@ webpageThread.daemon = True
 webpageThread.start()
 
 
+
+
+# Motor control/setup
 if __name__ == '__main__':
 
     shift_reg = Shifter(data=16,latch=20,clock=21)   # set up Shifter
