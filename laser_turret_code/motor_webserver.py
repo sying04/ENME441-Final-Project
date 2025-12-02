@@ -129,7 +129,8 @@ def serve_web_page():
         # post request stuff
         print(f'Connection from {client_ip}')
         client_message = conn.recv(2048).decode('utf-8')
-        print(f'Message from client:\n{client_message}')
+        if(client_message.startswith('POST')):
+            print(f'Message from client:\n{client_message}')
 
         """
         if client_message.startswith('POST'): # only post messages !!!
@@ -185,7 +186,12 @@ if __name__ == '__main__':
     m2 = Stepper(shift_reg, lock2)
 
     m1.zero()
-    m2.zero() 
+    m2.zero()
+
+    m1.goAngle(30)
+    m1.goAngle(-30)
+    m2.goAngle(30)
+    m2.goAngle(-30)
 
     # While the motors are running in their separate processes, the main
     # code can continue doing its thing: 
