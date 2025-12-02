@@ -18,11 +18,11 @@ def web_page():
         <html>
         <body>
 
-        <h2>Two-Axis Control (Pitch + Yaw)</h2>
+        <h2>Motor Control</h2>
 
         <!-- Angle Readouts -->
-        <h3>Pitch Angle: <span id="pitch-angle">?</span>(deg)</h3>
-        <h3>Yaw Angle: <span id="yaw-angle">?</span>(deg)</span></h3>
+        <h3>Pitch Angle: <span id="pitch-angle">?</span>°</h3>
+        <h3>Yaw Angle: <span id="yaw-angle">?</span>°</span></h3>
 
         <!-- Step Inputs -->
         <div>
@@ -185,8 +185,8 @@ def serve_web_page():
             conn.close()
             continue
 
-        # default → send webpage
-        conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n")
+        #  send webpage by default
+        conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n")
         try:
             conn.sendall(web_page())                  # body
         finally:
