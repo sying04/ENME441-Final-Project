@@ -12,7 +12,7 @@ GPIO.setmode(GPIO.BCM)
 
 # Generate HTML for the web page:
 def web_page():
-    # taken & modified from ChatGPT
+    # webpage taken & modified from ChatGPT
     html = f""" 
         <html>
         <head>
