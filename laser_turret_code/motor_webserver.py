@@ -173,11 +173,22 @@ def serve_web_page():
             continue
 
         #  send webpage by default
-        conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n")
-        try:
-            conn.sendall(web_page())
-        finally:
-            conn.close()
+        send_html(conn, html)
+
+
+# moved webpage to separate function
+def send_html(conn, html_string):
+    body = html_string.encode("utf-8")
+
+    header = (
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/html; charset=utf-8\r\n"
+        f"Content-Length: {len(body)}\r\n"
+        "Connection: close\r\n"
+        "\r\n"
+    ).encode("utf-8")
+
+    conn.sendall(header + body)
 
 # ==========================
 # webserver setup
