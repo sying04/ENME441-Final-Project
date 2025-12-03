@@ -30,6 +30,12 @@ def web_page():
           Yaw Step: <input id="yaw-step" type="number" value="50"><br><br>
         </div>
 
+        <!-- Angle Inputs -->
+        <div>
+          Go Pitch: <input id="change-pitch" type="number" value="0"><br><br>
+          Go Yaw: <input id="change-yaw" type="number" value="0"><br><br>
+        </div>
+
         <!-- Zero Buttons -->
         <button onclick="zeroAxis('pitch')">Zero Pitch</button>
         <button onclick="zeroAxis('yaw')">Zero Yaw</button>
@@ -37,26 +43,26 @@ def web_page():
         <br><br>
 
         <!-- D-Pad -->
-        <table border="0" cellpadding="10">
+        <table border="2" cellpadding="5">
           <tr>
             <td></td>
-            <td><button onclick="movePitch(1)">Up</button></td>
+            <td><button onclick="movePitch(1)">↑</button></td>
             <td></td>
           </tr>
           <tr>
-            <td><button onclick="moveYaw(-1)">Left</button></td>
+            <td><button onclick="moveYaw(-1)">←</button></td>
             <td></td>
-            <td><button onclick="moveYaw(1)">Right</button></td>
+            <td><button onclick="moveYaw(1)">→</button></td>
           </tr>
           <tr>
             <td></td>
-            <td><button onclick="movePitch(-1)">Down-</button></td>
+            <td><button onclick="movePitch(-1)">↓</button></td>
             <td></td>
           </tr>
         </table>
 
         <script>
-        // === POLLING ===
+        // === polling ===
         async function updatePositions() {{
           try {{
             let res = await fetch("/pos");
@@ -69,10 +75,10 @@ def web_page():
             console.log("Couldn't read positions");
           }}
         }}
-        setInterval(updatePositions, 500);
+        setInterval(updatePositions, 100);
         updatePositions();
 
-        // === MOVE FUNCTIONS ===
+        // === move functions ===
         async function movePitch(direction) {{
           let step = Number(document.getElementById("pitch-step").value);
           await sendMove("pitch", direction * step);
@@ -92,7 +98,7 @@ def web_page():
           updatePositions();
         }}
 
-        // === ZERO AXIS ===
+        // === zero axes ===
         async function zeroAxis(axis) {{
           await fetch("/zero", {{
             method: "POST",
@@ -109,33 +115,21 @@ def web_page():
 
     return (bytes(html,'utf-8'))   # convert html string to UTF-8 bytes object
 
-# Helper function to extract key,value pairs of POST data
-"""
-def parsePOSTdata(data):
-    data_dict = {}
-    idx = data.find('\r\n\r\n')+4
-    data = data[idx:]
-    data_pairs = data.split('&')
-    for pair in data_pairs:
-        key_val = pair.split('=')
-        if len(key_val) == 2:
-            data_dict[key_val[0]] = key_val[1]
-    return data_dict
-"""
-
 # ==========================
 # New parser w/ JSON
 # ==========================
-def parseJSONbody(request_text):
+def parseJSONbody(data):
     # Find body start
-    idx = request_text.find('\r\n\r\n') + 4
-    body = request_text[idx:]
+    idx = data.find('\r\n\r\n') + 4
+    body = data[idx:]
     try:
         return json.loads(body)
     except Exception:
         return {}
 
+# ==========================
 # Serve the web page to a client on connection:
+# ==========================
 def serve_web_page():
     while True:
         # print('Waiting for connection...')
@@ -188,7 +182,7 @@ def serve_web_page():
         #  send webpage by default
         conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n")
         try:
-            conn.sendall(web_page())                  # body
+            conn.sendall(web_page())
         finally:
             conn.close()
 
@@ -221,11 +215,6 @@ if __name__ == '__main__':
 
     m1.zero()
     m2.zero()
-
-    m1.goAngle(30)
-    m1.goAngle(-30)
-    m2.goAngle(30)
-    m2.goAngle(-30)
 
     # While the motors are running in their separate processes, the main
     # code can continue doing its thing: 
