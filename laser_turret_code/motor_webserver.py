@@ -173,7 +173,7 @@ def serve_web_page():
             continue
 
         #  send webpage by default
-        send_html(conn, html)
+        send_html(conn, web_page())
 
 
 # moved webpage to separate function
