@@ -15,6 +15,9 @@ def web_page():
     # taken & modified from ChatGPT
     html = f""" 
         <html>
+        <head>
+        <meta charset="UTF-8">
+        </head>
         <body>
 
         <h2>Motor Control</h2>
@@ -179,7 +182,7 @@ def serve_web_page():
         finally:
             conn.close()
 
-            
+
 # ==========================
 # webserver setup
 # ==========================
