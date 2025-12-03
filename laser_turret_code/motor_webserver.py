@@ -10,7 +10,6 @@ from motorcontrol import Stepper
 
 GPIO.setmode(GPIO.BCM)
 
-
 # Generate HTML for the web page:
 def web_page():
     # taken & modified from ChatGPT
@@ -22,18 +21,12 @@ def web_page():
 
         <!-- Angle Readouts -->
         <h3>Pitch Angle: <span id="pitch-angle">?</span>°</h3>
-        <h3>Yaw Angle: <span id="yaw-angle">?</span>°</span></h3>
+        <h3>Yaw Angle: <span id="yaw-angle">?</span>°</h3>
 
         <!-- Step Inputs -->
         <div>
           Pitch Step: <input id="pitch-step" type="number" value="50"><br><br>
           Yaw Step: <input id="yaw-step" type="number" value="50"><br><br>
-        </div>
-
-        <!-- Angle Inputs -->
-        <div>
-          Go Pitch: <input id="change-pitch" type="number" value="0"><br><br>
-          Go Yaw: <input id="change-yaw" type="number" value="0"><br><br>
         </div>
 
         <!-- Zero Buttons -->
