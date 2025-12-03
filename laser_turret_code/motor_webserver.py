@@ -36,7 +36,7 @@ def web_page():
         <br><br>
 
         <!-- D-Pad -->
-        <table border="2" cellpadding="5">
+        <table border="1" cellpadding="5">
           <tr>
             <td></td>
             <td><button onclick="movePitch(1)">↑</button></td>
@@ -68,7 +68,7 @@ def web_page():
             console.log("Couldn't read positions");
           }}
         }}
-        setInterval(updatePositions, 100);
+        setInterval(updatePositions, 500);
         updatePositions();
 
         // === move functions ===
