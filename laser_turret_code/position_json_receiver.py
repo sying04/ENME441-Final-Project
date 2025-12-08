@@ -4,7 +4,6 @@ import json
 
 class PositionReceiver():
 
-    host = "http://192.168.1.254:8000/positions.json"
     def __init__(self,json_host):
         self.host = json_host
 
@@ -18,4 +17,5 @@ class PositionReceiver():
 if __name__ == "__main__":
     host = "http://192.168.1.254:8000/positions.json"
     json_receiver = PositionReceiver(host)
-    print(json.dumps(json_receiver.get_json(),indent = 4))
+    data = json_receiver.get_json()
+    print(json.dumps(data,indent = 4))
