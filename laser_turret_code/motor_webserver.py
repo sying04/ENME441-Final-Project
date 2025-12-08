@@ -207,8 +207,8 @@ if __name__ == '__main__':
     lock1 = multiprocessing.Lock()
     lock2 = multiprocessing.Lock()
     # Instantiate 2 Steppers:
-    m1 = Stepper(shift_reg, lock1)
-    m2 = Stepper(shift_reg, lock2)
+    m1 = Stepper(shift_reg, lock2)
+    m2 = Stepper(shift_reg, lock1)
 
     m1.zero()
     m2.zero()
