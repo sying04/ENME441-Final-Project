@@ -26,6 +26,11 @@ def web_page():
         <h3>Pitch Angle: <span id="pitch-angle">?</span>°</h3>
         <h3>Yaw Angle: <span id="yaw-angle">?</span>°</h3>
 
+        <!-- Targeting -->
+        <h3>Current Target: <span id="target">?</span></h3>
+        <h3>Current Target Theta: <span id="target-theta">?</span>°</h3>     
+        <h3>Current Target Height: <span id="target-height">?</span>°</h3>           
+
         <!-- Step Inputs -->
         <div>
           Pitch Step: <input id="pitch-step" type="number" value="50"><br><br>
@@ -123,9 +128,13 @@ def parseJSONbody(data):
     except Exception:
         return {}
 
+# temporary target x, y
+
+
 # ==========================
 # Serve the web page to a client on connection:
 # ==========================
+# some extra json functions and responses taken and modified from ChatGPT
 def serve_web_page():
     while True:
         # print('Waiting for connection...')
@@ -135,8 +144,15 @@ def serve_web_page():
         # print(f'Connection from {client_ip}')
         client_message = conn.recv(2048).decode('utf-8')
 
-        request_line = client_message.split('\n')[0]
-        method, path, _ = request_line.split()
+        request_line = client_message.split("\r\n", 1)[0]
+        parts = request_line.split()
+
+        if len(parts) < 2:
+            conn.close()
+            continue
+
+        method = parts[0]
+        path = parts[1]
 
         if path == "/pos":
             response = json.dumps({
@@ -158,7 +174,7 @@ def serve_web_page():
             elif axis == "pitch":
                 m2.rotate(delta / 4096.0 * 360.0)
 
-            conn.send(b"HTTP/1.1 200 OK\r\n\r\nOK")
+            conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
 
@@ -171,7 +187,7 @@ def serve_web_page():
             elif axis == "pitch":
                 m2.zero()
 
-            conn.send(b"HTTP/1.1 200 OK\r\n\r\nOK")
+            conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
 
