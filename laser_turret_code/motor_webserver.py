@@ -29,12 +29,18 @@ def web_page():
         <!-- Targeting -->
         <h3>Current Target: <span id="target">?</span></h3>
         <h3>Current Target Theta: <span id="target-theta">?</span>°</h3>     
-        <h3>Current Target Height: <span id="target-height">?</span>°</h3>           
+        <h3>Current Target Height: <span id="target-height">?</span>°</h3>
 
-        <!-- Step Inputs -->
         <div>
-          Pitch Step: <input id="pitch-step" type="number" value="50"><br><br>
-          Yaw Step: <input id="yaw-step" type="number" value="50"><br><br>
+        <button onclick="switchTarget(1)"></button>
+        <button onclick="lockTarget()"></button>
+        <button onclick="switchTarget(-1)">Zero Pitch</button>           
+        </div>
+
+        <!-- Step Text Input -->
+        <div>
+          Pitch (steps, 512=45°): <input id="pitch-step" type="number" value="128"><br><br>
+          Yaw (steps, 512=45°): <input id="yaw-step" type="number" value="128"><br><br>
         </div>
 
         <!-- Zero Buttons -->
@@ -43,7 +49,7 @@ def web_page():
 
         <br><br>
 
-        <!-- D-Pad -->
+        <!-- Controls -->
         <table border="1" cellpadding="5">
           <tr>
             <td></td>
@@ -62,6 +68,8 @@ def web_page():
           </tr>
         </table>
 
+        <button onclick="fireLaser()">Fire</button>
+
         <script>
         // === polling ===
         async function updatePositions() {{
@@ -79,7 +87,7 @@ def web_page():
         setInterval(updatePositions, 500);
         updatePositions();
 
-        // === move functions ===
+        // === manual move functions ===
         async function movePitch(direction) {{
           let step = Number(document.getElementById("pitch-step").value);
           await sendMove("pitch", direction * step);
@@ -97,6 +105,31 @@ def web_page():
             body: JSON.stringify({{ axis: axis, delta: delta }})
           }});
           updatePositions();
+        }}
+
+        async function fireLaser() {{
+          await fetch("/fire", {{
+            method: "POST",
+            headers: {{ "Content-Type": "application/json" }},
+            body: JSON.stringify({{}})
+          }})
+        }}
+
+        // === targeting ===
+        async function lockTarget() {{
+          await fetch("/target") {{
+            method: "POST",
+            headers: {{ "Content-Type": "application/json"}},
+            bodyL JSON.stringify({{ }})
+          }}
+        }}
+
+        async function switchTarget(direction) {{
+          await fetch("/switch" {{
+            method: "POST",
+            headers: {{ "Content-Type": "application/json" }},
+            body: JOSN.stringify({{ direction: direction}})
+          }})
         }}
 
         // === zero axes ===
@@ -190,6 +223,9 @@ def serve_web_page():
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
+
+        elif path == "/fire" and method == "POST":
+            fire_laser = 0
 
         #  send webpage by default
         conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n")
