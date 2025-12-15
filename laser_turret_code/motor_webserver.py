@@ -282,6 +282,7 @@ if __name__ == '__main__':
     turret_targeter = Targeter(host, team, number_of_teams, laser_height)
     team_r, team_ang, team_z = turret_targeter.locate_self()
     turret_targeter.pick_target(0)
+    turret_targeter.aim_at_target()
 
     # ==========================
     # webserver setup
