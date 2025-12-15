@@ -119,10 +119,10 @@ def web_page():
 
         // === targeting == 
         async function switchTarget(direction) {{
-          await fetch("/switch" {{
+          await fetch("/switch", {{
             method: "POST",
             headers: {{ "Content-Type": "application/json" }},
-            body: JOSN.stringify({{ direction: direction}})
+            body: JSON.stringify({{ direction: direction}})
           }})
         }}
 
@@ -184,7 +184,10 @@ def serve_web_page():
         if path == "/pos":
             response = json.dumps({
                "pitch": m2.getAngle(),
-               "yaw": m1.getAngle()
+               "yaw": m1.getAngle(),
+               "target": turret_targeter.target,
+               "target-theta": turret_target.heading,
+               "target-height": 10
             })
             conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n")
             conn.send(response.encode())
@@ -222,15 +225,18 @@ def serve_web_page():
             # set timer to zero
             # have other thread counting timer to turn laser off
         elif path == "/switch" and method == "POST":
-            data = parseJOSNbody(client_message)
+            data = parseJSONbody(client_message)
             direction = data.get("direction")
+            global currentTarget
             temp = currentTarget + int(direction)
 
-            if temp > 0 and temp < 22:
+            if temp > 0 and temp < 21:
                 turret_targeter.pick_target(temp)
                 currentTarget = temp
             m1.rotate(turret_targeter.aim_at_target())
             # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
+            conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
+            conn.close()
             continue
         else:
             print("Unkown request")
@@ -292,7 +298,7 @@ if __name__ == '__main__':
     # code can continue doing its thing: 
     try:
         while True:
-            pass
+            sleep(1)
     except KeyboardInterrupt:
         GPIO.cleanup() 
         print('Closing socket')
