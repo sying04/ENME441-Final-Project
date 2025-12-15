@@ -226,12 +226,11 @@ def serve_web_page():
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
-
         elif path == "/fire" and method == "POST":
             # set gpio on laser to high
             # set timer to zero
             # have other thread counting timer to turn laser off
-        elif path == "/swtich" and method == "POST":
+        elif path == "/switch" and method == "POST":
             data = parseJOSNbody(client_message)
             direction = data.get("direction")
             temp = currentTarget + int(direction)
