@@ -288,9 +288,9 @@ if __name__ == '__main__':
     number_of_teams = 22
 
     # values for local testing
-    host = "http://sying.local:8080/positions.json"
-    team = 2
-    number_of_teams = 20 
+    # host = "http://sying.local:8080/positions.json"
+    # team = 2
+    # number_of_teams = 20 
     laser_height = 0
 
     # turret targetting setup

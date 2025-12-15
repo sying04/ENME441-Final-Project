@@ -155,7 +155,7 @@ if __name__ == "__main__":
     #values for local testing
     # host = "http://127.0.0.254:8000/positions.json"
     # team = 2
-    # number_of_teams = 20 
+    # number_of_teams = 20
     laser_height = 0 
 
     enme441_targeter = Targeter(host, team, number_of_teams, laser_height)
