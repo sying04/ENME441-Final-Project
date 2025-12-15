@@ -241,7 +241,7 @@ def serve_web_page():
             m1.rotate(turret_targeter.aim_at_target())
             # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
             continue
-        else
+        else:
             print("Unkown request")
 
         #  send webpage by default
