@@ -155,8 +155,6 @@ def parseJSONbody(data):
     except Exception:
         return {}
 
-# temporary target x, y
-
 
 # ==========================
 # Serve the web page to a client on connection:
@@ -185,8 +183,8 @@ def serve_web_page():
             response = json.dumps({
                "pitch": m2.getAngle(),
                "yaw": m1.getAngle(),
-               "target": turret_targeter.target,
-               "target-theta": turret_target.heading,
+               #"target": turret_targeter.target,
+               #"target-theta": turret_target.heading,
                "target-height": 10
             })
             conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n")
