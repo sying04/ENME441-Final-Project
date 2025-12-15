@@ -77,6 +77,7 @@ class Targeter():
                 print(f'Target {n} is at location: {target_loc}')
 
     def aim_at_target(self):
+        self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
         return self.heading
 
