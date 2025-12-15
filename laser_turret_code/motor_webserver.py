@@ -35,15 +35,14 @@ def web_page():
         <h3>Current Target Height: <span id="target-height">?</span>°</h3>
 
         <div>
-        <button onclick="switchTarget(1)"></button>
-        <button onclick="lockTarget()"></button>
-        <button onclick="switchTarget(-1)">Zero Pitch</button>           
+        <button onclick="switchTarget(1)">←</button>
+        <button onclick="switchTarget(-1)">→</button>           
         </div>
 
         <!-- Step Text Input -->
         <div>
-          Pitch (steps, 512=45°): <input id="pitch-step" type="number" value="128"><br><br>
-          Yaw (steps, 512=45°): <input id="yaw-step" type="number" value="128"><br><br>
+          Pitch (steps, 512 = 45°): <input id="pitch-step" type="number" value="8"><br><br>
+          Yaw (steps, 512 = 45°): <input id="yaw-step" type="number" value="8"><br><br>
         </div>
 
         <!-- Zero Buttons -->
@@ -118,15 +117,7 @@ def web_page():
           }})
         }}
 
-        // === targeting ===
-        async function lockTarget() {{
-          await fetch("/target") {{
-            method: "POST",
-            headers: {{ "Content-Type": "application/json"}},
-            bodyL JSON.stringify({{ }})
-          }}
-        }}
-
+        // === targeting == 
         async function switchTarget(direction) {{
           await fetch("/switch" {{
             method: "POST",
