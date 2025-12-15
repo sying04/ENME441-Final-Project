@@ -35,8 +35,8 @@ def web_page():
         <h3>Current Target Height: <span id="target-height">?</span>°</h3>
 
         <div>
-        <button onclick="switchTarget(1)">←</button>
-        <button onclick="switchTarget(-1)">→</button>           
+        <button onclick="switchTarget(-1)">←</button>
+        <button onclick="switchTarget(1)">→</button>           
         </div>
 
         <!-- Step Text Input -->
@@ -230,8 +230,10 @@ def serve_web_page():
 
             if temp > 0 and temp < 21:
                 turret_targeter.pick_target(temp)
+                print(f'going to target {temp} @ {turret_target.aim_heading}')
                 currentTarget = temp
-            m1.rotate(turret_targeter.aim_at_target())
+                m1.rotate(turret_targeter.aim_at_target())
+            
             # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
@@ -279,7 +281,7 @@ if __name__ == '__main__':
     # turret targetting setup
     turret_targeter = Targeter(host, team, number_of_teams, laser_height)
     team_r, team_ang, team_z = turret_targeter.locate_self()
-
+    
     # ==========================
     # webserver setup
     # ==========================
