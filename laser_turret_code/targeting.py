@@ -153,12 +153,13 @@ if __name__ == "__main__":
     number_of_teams = 22
 
     #values for local testing
-    host = "http://127.0.0.254:8000/positions.json"
-    team = 2
-    number_of_teams = 20 
+    # host = "http://127.0.0.254:8000/positions.json"
+    # team = 2
+    # number_of_teams = 20 
     laser_height = 0 
 
-    enme441_targeter = Targeter(host, team, number_of_teams, laser_height)#We only need to instantiate a Targeter in the main file in a thread, run the aim_down_list function at the start. 
+    enme441_targeter = Targeter(host, team, number_of_teams, laser_height)
+    #We only need to instantiate a Targeter in the main file in a thread, run the aim_down_list function at the start. 
     #teampos = enme441_targeter.locate_self_rad()
     #All of below is for testing
     print(f'Json host is: {enme441_targeter.position_receiver.host}')
