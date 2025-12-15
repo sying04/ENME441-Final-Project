@@ -183,8 +183,8 @@ def serve_web_page():
             response = json.dumps({
                "pitch": m2.getAngle(),
                "yaw": m1.getAngle(),
-               #"target": turret_targeter.target,
-               #"target-theta": turret_target.heading,
+               "target": turret_targeter.target,
+               "target-theta": turret_targeter.heading,
                "target-height": 10
             })
             conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n")
@@ -230,7 +230,7 @@ def serve_web_page():
 
             if temp > 0 and temp < 21:
                 turret_targeter.pick_target(temp)
-                print(f'going to target {temp} @ {turret_target.aim_heading}')
+                #print(f'going to target {temp} @ {turret_targeter.aim_heading}')
                 currentTarget = temp
                 m1.rotate(turret_targeter.aim_at_target())
             
@@ -281,7 +281,8 @@ if __name__ == '__main__':
     # turret targetting setup
     turret_targeter = Targeter(host, team, number_of_teams, laser_height)
     team_r, team_ang, team_z = turret_targeter.locate_self()
-    
+    turret_targeter.pick_target(0)
+
     # ==========================
     # webserver setup
     # ==========================
