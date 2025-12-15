@@ -7,8 +7,11 @@ import multiprocessing
 from time import sleep
 from shifter import Shifter
 from motorcontrol import Stepper
+from targeting import Targeter
 
 GPIO.setmode(GPIO.BCM)
+
+currentTarget = 0;
 
 # Generate HTML for the web page:
 def web_page():
@@ -225,7 +228,21 @@ def serve_web_page():
             continue
 
         elif path == "/fire" and method == "POST":
-            fire_laser = 0
+            # set gpio on laser to high
+            # set timer to zero
+            # have other thread counting timer to turn laser off
+        elif path == "/swtich" and method == "POST":
+            data = parseJOSNbody(client_message)
+            direction = data.get("direction")
+            temp = currentTarget + int(direction)
+
+            if(temp > 0 && temp < 22)
+                turret_targeter.pick_target(temp)
+                currentTarget = temp
+            m1.rotate(turret_targeter.aim_at_target())
+            # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
+        else
+            print("Unkown request")
 
         #  send webpage by default
         conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n")
@@ -264,6 +281,21 @@ if __name__ == '__main__':
 
     m1.zero()
     m2.zero()
+
+    # in class
+    host = "http://192.168.1.254:8000/positions.json"
+    team = 21
+    number_of_teams = 22
+
+    # values for local testing
+    host = "http://sying.local:8080/positions.json"
+    team = 2
+    number_of_teams = 20 
+    laser_height = 0
+
+    # turret targetting setup
+    turret_targeter = Targeter(host, team, number_of_teams, laser_height)
+    team_r, team_ang, team_z = turret_targeter.locate_self()
 
     # While the motors are running in their separate processes, the main
     # code can continue doing its thing: 
