@@ -1,4 +1,5 @@
 import position_json_receiver
+#import motorcontrol
 import json
 import math
 
@@ -37,19 +38,16 @@ class Targeter():
         def rad2deg(ang):
             return ang*180/math.pi
 
-        def rel_ang(m,t): #assumes all turrets are equidistant from center 
-            arc = abs(t-m)
-            arc = min(arc,360-arc)
-            absrel = (180-arc)/2 #180 degrees of a triangle minus the arc between target and me, divided by two because one angle is the angle at me, the other is the target.
+        def which_quad(ang):
+            quad = 1 
+            if ang>180:
+                quad = quad+2
+            if (ang%180)>90:
+                quad = quad+1
+            return quad
 
         
-            if t<85 or t>265: #left side of diameter through me  
-                sgn = -1 #ccw turn
-            else:# right side of diameter
-                sgn = 1 #cw turn
-
-            rel = absrel*sgn
-            return rel
+        
 
 
     
@@ -79,8 +77,24 @@ class Targeter():
                 print(f'Target {n} is at location: {target_loc}')
 
     def aim_at_target(self):
-        self.heading = self.TMath.rel_ang(self.my_ang,self.t_ang)
+        self.heading = self.rel_ang(self.my_ang,self.t_ang)
         return self.heading
+
+    def rel_ang(self,m,t): #assumes all turrets are equidistant from center 
+        arc = abs(t-m)
+        arc = min(arc,360-arc)
+        absrel = (180-arc)/2 #180 degrees of a triangle minus the arc between target and me, divided by two because one angle is the angle at me, the other is the target.
+        sgn = (t-m)/abs(t-m)
+        
+        quad = self.TMath.which_quad(t-m)
+        sgn = (quad-2.5)/abs(quad-2.5)
+
+
+        
+
+        rel = absrel*sgn
+        return rel
+
 
     def aim_down_list(self):
         for i in range(self.number_of_teams):
@@ -95,10 +109,12 @@ class Targeter():
 
     def guess_hit(self):
         sgn = self.aim_heading/abs(self.aim_heading)
-        arc = self.aim_heading*2-180
+        arc = 180-abs(self.aim_heading)*2
+        arc = arc*sgn
         return (self.my_ang-arc)%360
 
     def aim_down_list_test(self):
+        self.locate_self()
         hits = 0
         for i in range(self.number_of_teams):
             n = i+1
@@ -109,11 +125,21 @@ class Targeter():
                 print(f'Target {n} is being aimed at with this heading: {self.aim_heading}')
                 hit_guess = self.guess_hit()
                 print(f'I think my hit for target {n} was at theta {hit_guess} instead of {self.t_ang}')
+                rel_guess = (hit_guess-self.my_ang)%360
+                rel_tar = (self.t_ang-self.my_ang)%360
+                print(f'Relative to me that is: {rel_guess} instead of {rel_tar}')
+                print(f'Relative Quadrant is: {self.TMath.which_quad(rel_tar)}')
+                #print(f'Absolute Quadrant is: {self.TMath.which_quad(self.t_ang)}')
                 if abs(hit_guess-self.t_ang)<1:
                     hits += 1
+                    print()
+                elif abs(180-rel_tar) == abs(180-rel_guess):
+                    print('FLIPPED')
+                    
                 else:
-                    print('MISS')
+                    print('MISS\n')
         print(f'I made {hits} hits out of {self.number_of_teams-1} turrets.')
+        self.locate_self()
 
     def fire(self):
         self.laser = True
@@ -128,7 +154,7 @@ if __name__ == "__main__":
 
     #values for local testing
     host = "http://127.0.0.254:8000/positions.json"
-    team = 13
+    team = 2
     number_of_teams = 20 
     laser_height = 0 
 
@@ -148,7 +174,7 @@ if __name__ == "__main__":
 
     enme441_targeter.cycle_targets()
     print()
-    enme441_targeter.aim_down_list()
+    #enme441_targeter.aim_down_list()
     print()
     enme441_targeter.aim_down_list_test()
     print('DONE TESTS FOR TURRETS')
