@@ -11,7 +11,7 @@ from targeting import Targeter
 
 GPIO.setmode(GPIO.BCM)
 
-currentTarget = 0;
+currentTarget = 1;
 
 # Generate HTML for the web page:
 def web_page():
@@ -228,7 +228,7 @@ def serve_web_page():
             global currentTarget
             temp = currentTarget + int(direction)
 
-            if temp > 0 and temp < 21:
+            if temp > 1 and temp < 22:
                 turret_targeter.pick_target(temp)
                 #print(f'going to target {temp} @ {turret_targeter.aim_heading}')
                 currentTarget = temp
@@ -281,7 +281,7 @@ if __name__ == '__main__':
     # turret targetting setup
     turret_targeter = Targeter(host, team, number_of_teams, laser_height)
     team_r, team_ang, team_z = turret_targeter.locate_self()
-    turret_targeter.pick_target(0)
+    turret_targeter.pick_target(1)
     turret_targeter.aim_at_target()
 
     # ==========================
