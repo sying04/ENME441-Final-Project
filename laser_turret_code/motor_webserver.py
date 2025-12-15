@@ -247,23 +247,11 @@ def serve_web_page():
             conn.close()
 
 
-# ==========================
-# webserver setup
-# ==========================
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # address reuse
-s.bind(('', 8080))
-s.listen(3)
-
-webpageThread = threading.Thread(target=serve_web_page)
-webpageThread.daemon = True
-webpageThread.start()
 
 # ==========================
 # Motor control/setup
 # ==========================
 if __name__ == '__main__':
-
     shift_reg = Shifter(data=16,latch=20,clock=21)   # set up Shifter
 
     # Use multiprocessing.Lock() to prevent motors from trying to 
@@ -291,6 +279,18 @@ if __name__ == '__main__':
     # turret targetting setup
     turret_targeter = Targeter(host, team, number_of_teams, laser_height)
     team_r, team_ang, team_z = turret_targeter.locate_self()
+
+    # ==========================
+    # webserver setup
+    # ==========================
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # address reuse
+    s.bind(('', 8080))
+    s.listen(3)
+
+    webpageThread = threading.Thread(target=serve_web_page)
+    webpageThread.daemon = True
+    webpageThread.start()
 
     # While the motors are running in their separate processes, the main
     # code can continue doing its thing: 
