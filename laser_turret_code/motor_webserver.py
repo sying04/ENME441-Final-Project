@@ -226,7 +226,7 @@ def serve_web_page():
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
-        elif path == "/fire" and method == "POST":
+       # elif path == "/fire" and method == "POST":
             # set gpio on laser to high
             # set timer to zero
             # have other thread counting timer to turn laser off
@@ -240,6 +240,7 @@ def serve_web_page():
                 currentTarget = temp
             m1.rotate(turret_targeter.aim_at_target())
             # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
+            continue
         else
             print("Unkown request")
 
