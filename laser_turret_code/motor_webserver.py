@@ -81,6 +81,8 @@ def web_page():
 
             document.getElementById("pitch-angle").textContent = data.pitch;
             document.getElementById("yaw-angle").textContent = data.yaw;
+            document.getElementById("target").textContent = data.target;
+            document.getElementById("target-theta").textContent = data.target-theta;
 
           }} catch (e) {{
             console.log("Couldn't read positions");
