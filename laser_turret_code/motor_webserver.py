@@ -235,7 +235,7 @@ def serve_web_page():
             direction = data.get("direction")
             temp = currentTarget + int(direction)
 
-            if temp > 0 and temp < 22
+            if temp > 0 and temp < 22:
                 turret_targeter.pick_target(temp)
                 currentTarget = temp
             m1.rotate(turret_targeter.aim_at_target())
