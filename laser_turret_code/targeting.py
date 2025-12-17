@@ -142,7 +142,7 @@ class Targeter():
                 # self.locate_target()
                 self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
-                while yaw_motor.lock.acquire(block=False) and pitch_motor.lock.acquire(block=False):
+                while self.yaw_motor.lock.acquire(block=False) and self.pitch_motor.lock.acquire(block=False):
                     pass # pause everything else until the motors move to where they need
                 self.fire(3.0)
 
