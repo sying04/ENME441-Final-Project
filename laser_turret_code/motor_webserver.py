@@ -355,12 +355,14 @@ if __name__ == '__main__':
     try:
         while True:
             sleep(0.05)
-            if turret_targeter.laser and not lock1.locked():#getting firing state from targeter and motor position state from web thread
+            if turret_targeter.laser and lock1.acquire():#getting firing state from targeter and motor position state from web thread
+                lock1.release()
                 GPIO.output(laserpin,GPIO.HIGH)
                 sleep(3)
                 turret_targeter.laser = False
                 GPIO.output(laserpin,GPIO.LOW)
             else:
+                slep(3)
                 GPIO.output(laserpin,GPIO.LOW)
 
 
