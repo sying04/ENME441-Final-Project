@@ -104,7 +104,9 @@ class Targeter():
         self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
         print (f"I'm at {self.my_ang} and my target is at {self.t_ang}")
-        self.fire()
+        self.yaw_motor.goAngle(self.heading)
+
+        # self.fire()
         sleep(0.1)
         return self.heading
 
@@ -117,8 +119,6 @@ class Targeter():
         quad = self.TMath.which_quad(t-m)
         sgn = (quad-2.5)/abs(quad-2.5)
 
-
-        
 
         rel = absrel*sgn
         return rel
@@ -140,18 +140,26 @@ class Targeter():
             if n != self.team:
                 self.pick_target(n)
                 self.locate_target()
-                self.heading = self.aim_at_target()
+                # self.heading = self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
+
+                self.fire(3.0)
+
         self.globe_data = self.target_data['globes']
         for i in range(len(self.globe_data)):
             g = i+1
             if self.stop:
                 print("Aborting")
                 break
-            self.pick_globe(self.globe_data[g])
-            self.aim_at_globe(g)
-            self.fire()
-            print(f'Globe {g} is being aimed at with this heading: {self.heading} and this pitch: {self.pitch}')
+
+            try:
+                self.pick_globe(self.globe_data[g])
+                self.aim_at_globe(g)
+
+                print(f'Globe {g} is being aimed at with this heading: {self.heading} and this pitch: {self.pitch}')
+                self.fire(3.0)
+            except:
+                print("Globe not found")
 
 
     def pick_globe(self, g):
@@ -170,6 +178,10 @@ class Targeter():
         self.heading = self.rel_ang(self.my_ang,self.g_ang)
         self.pitch = self.find_pitch()
         self.fire()
+
+        self.yaw_motor.goAngle(self.heading)
+        self.pitch_motor.goAngle(self.pitch)
+
         sleep(0.1)
         return (self.heading, self.pitch)
                 
@@ -237,9 +249,13 @@ class Targeter():
         print(f'I made {hits} hits out of {self.number_of_teams-1} enemy turrets.')
         print(f'I made {globes_hit} hits out of {len(self.globe_data)} globes')
         self.locate_self()
-
-    def fire(self):
+     
+    def fire(t):
         self.laser = True
+        GPIO.output(self.laserpin,GPIO.HIGH)
+        sleep(t)
+        self.laser = False
+        GPIO.output(self.laserpin,GPIO.LOW)
 
     
 
@@ -253,7 +269,7 @@ if __name__ == "__main__":
     #values for local testing
     #host = "http://127.0.0.254:8000/positions.json"
     
-    laser_height = 0 
+    laser_height = 5 
 
     self = Targeter(host, team, number_of_teams, laser_height)
     #We only need to instantiate a Targeter in the main file in a thread, run the aim_down_list function at the start. 

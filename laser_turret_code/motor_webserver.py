@@ -48,6 +48,7 @@ def web_page():
         </div>
 
         <!-- Step Text Input -->
+        <h2> Manual Calibration</h2>
         <div>
           Pitch (steps, 512 = 45°): <input id="pitch-step" type="number" value="8"><br><br>
           Yaw (steps, 512 = 45°): <input id="yaw-step" type="number" value="8"><br><br>
@@ -260,15 +261,10 @@ def serve_web_page():
             conn.close()
             continue
         elif path == "/fire" and method == "POST":
-
-            # set gpio on laser to high
-            shoot(1)
+            turret_targeter.fire(1.0)
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
-
-            # set timer to zero
-            # have other thread counting timer to turn laser off
         elif path == "/switch" and method == "POST":
             data = parseJSONbody(client_message)
             direction = data.get("direction")
@@ -292,7 +288,6 @@ def serve_web_page():
         elif path == "/aim_down_list" and method == "POST":
             turret_targeter.start_again()
             threading.Thread( target=turret_targeter.aim_down_list, daemon=True).start()
-
             
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
@@ -360,6 +355,7 @@ if __name__ == '__main__':
     try:
         while True:
             sleep(0.1)
+            """
             if turret_targeter.laser and lock1.acquire(block=False) and lock2.acquire(block=False): # targeter and motor agree on when to fire 
                 try:
                     shoot(3)
@@ -372,6 +368,7 @@ if __name__ == '__main__':
             else:
                 
                 GPIO.output(laserpin,GPIO.LOW)
+            """
 
 
     except KeyboardInterrupt:
