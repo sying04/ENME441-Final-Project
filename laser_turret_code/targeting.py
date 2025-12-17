@@ -144,6 +144,8 @@ class Targeter():
                 break
             self.pick_globe(self.globe_data[g])
             self.aim_at_globe(g)
+            self.fire()
+            print(f'Globe {g} is being aimed at with this heading: {self.heading} and this pitch: {self.pitch}')
 
 
     def pick_globe(self, g):

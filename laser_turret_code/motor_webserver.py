@@ -37,10 +37,16 @@ def web_page():
         <h3>Current Target: <span id="target">?</span></h3>
         <h3>Current Target Theta: <span id="target-theta">?</span>°</h3>     
         <h3>Current Target Height: <span id="target-height">?</span>°</h3>
-
+        <h2>Targeting</h2
         <div>
+        <h1>Manual target cycling</h1>
         <button onclick="switchTarget(-1)">←</button>
         <button onclick="switchTarget(1)">→</button>           
+        </div>
+        <div>
+        <h1>Automatic target cycling</h1>
+        <button onclick="aimDownList()">Auto</button>
+        <button onclick="stopAimDownList()">Abort</button>
         </div>
 
         <!-- Step Text Input -->
@@ -75,9 +81,7 @@ def web_page():
         </table>
 
         <button onclick="fireLaser()">Fire</button>
-        <br>
-        <button onclick="aimDownList()">Auto</button>
-        <button onclick="stopAimDownList()">Abort</button>
+        
         
         <script>
         // === polling ===
@@ -280,7 +284,7 @@ def serve_web_page():
             conn.close()
             continue
         elif path == "/stop_aim_down_list" and method == "POST":
-            turret_targeter.stop_aim_down_list()
+            turret_targeter.stop()
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
