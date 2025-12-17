@@ -103,8 +103,8 @@ class Targeter():
         #self.locate_self()
         self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
-        print (f"I'm at {self.my_ang} and my target is at {self.t_ang}")
         self.yaw_motor.goAngle(self.heading)
+        print (f"I'm at {self.my_ang} and my target is at {self.t_ang}")
 
         # self.fire()
         sleep(0.1)
@@ -139,10 +139,9 @@ class Targeter():
             n = i+1
             if n != self.team:
                 self.pick_target(n)
-                self.locate_target()
-                # self.heading = self.aim_at_target()
+                # self.locate_target()
+                self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
-
                 self.fire(3.0)
 
         self.globe_data = self.target_data['globes']
