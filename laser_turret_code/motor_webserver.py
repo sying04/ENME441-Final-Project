@@ -362,7 +362,7 @@ if __name__ == '__main__':
                 turret_targeter.laser = False
                 GPIO.output(laserpin,GPIO.LOW)
             else:
-                slep(3)
+                sleep(0.05)
                 GPIO.output(laserpin,GPIO.LOW)
 
 
