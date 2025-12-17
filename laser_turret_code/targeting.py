@@ -103,7 +103,7 @@ class Targeter():
         #self.locate_self()
         self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
-        print (f"I'm at {my_ang} and my target is at {my_ang - t_ang}")
+        print (f"I'm at {my_ang} and my target is at {t_ang}")
         self.fire()
         sleep(0.1)
         return self.heading
