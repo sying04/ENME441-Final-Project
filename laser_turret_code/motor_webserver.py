@@ -37,7 +37,7 @@ def web_page():
         <h3>Current Target: <span id="target">?</span></h3>
         <h3>Current Target Theta: <span id="target-theta">?</span>°</h3>     
         <h3>Current Target Height: <span id="target-height">?</span>°</h3>
-        <h2>Targeting Controls</h2
+        <h2>Targeting Controls</h2>
         <div>
         <h3>Manual target cycling</h3>
         <button onclick="switchTarget(-1)">←</button>
@@ -93,7 +93,8 @@ def web_page():
             document.getElementById("pitch-angle").textContent = data.pitch;
             document.getElementById("yaw-angle").textContent = data.yaw;
             document.getElementById("target").textContent = data.target;
-            document.getElementById("target-theta").textContent = data.target-theta;
+            document.getElementById("target-theta").textContent = data["target-theta"];
+            document.getElementById("target-height").textContent = data["target-height"];
 
           }} catch (e) {{
             console.log("Couldn't read positions");
@@ -179,9 +180,9 @@ def web_page():
 
     return (bytes(html,'utf-8'))   # convert html string to UTF-8 bytes object
 
-def shoot():
+def shoot(t):
     GPIO.output(laserpin,GPIO.HIGH)
-    sleep(1)
+    sleep(t)
     GPIO.output(laserpin,GPIO.LOW)
 
 
@@ -227,7 +228,7 @@ def serve_web_page():
                "yaw": m1.getAngle(),
                "target": turret_targeter.target,
                "target-theta": turret_targeter.heading,
-               "target-height": 10
+               "target-height": turret_targeter.g_z
             })
             conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n")
             conn.send(response.encode())
@@ -261,9 +262,12 @@ def serve_web_page():
             conn.close()
             continue
         elif path == "/fire" and method == "POST":
-            turret_targeter.fire()
+
             # set gpio on laser to high
-            shoot()
+            shoot(1)
+            conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
+            conn.close()
+            continue
 
             # set timer to zero
             # have other thread counting timer to turn laser off
@@ -291,7 +295,8 @@ def serve_web_page():
 
         elif path == "/aim_down_list" and method == "POST":
             turret_targeter.start_again()
-            turret_targeter.aim_down_list()
+            threading.Thread( target=turret_targeter.aim_down_list, daemon=True).start()
+
             
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
@@ -358,15 +363,18 @@ if __name__ == '__main__':
     # code can continue doing its thing: 
     try:
         while True:
-            sleep(0.05)
-            if turret_targeter.laser and lock1.acquire():#getting firing state from targeter and motor position state from web thread
-                lock1.release()
-                GPIO.output(laserpin,GPIO.HIGH)
-                sleep(3)
-                turret_targeter.laser = False
-                GPIO.output(laserpin,GPIO.LOW)
+            sleep(0.1)
+            if turret_targeter.laser and lock1.acquire(block=False) and lock2.acquire(block=False): # targeter and motor agree on when to fire 
+                try:
+                    shoot(3)
+                    turret_targeter.laser = False
+                finally:
+                    GPIO.output(laserpin, GPIO.LOW)
+                    lock1.release()
+                    lock2.release()
+                    turret_targeter.laser = False
             else:
-                sleep(0.05)
+                
                 GPIO.output(laserpin,GPIO.LOW)
 
 

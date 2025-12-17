@@ -22,6 +22,8 @@ class Targeter():
         self.pitch_motor = pitch_motor
         self.laserpin = laser
         self.stop = False
+        self.number_of_teams = len(self.target_data["turrets"])
+        self.g_z = 10 #placeholder
         #GPIO.setup(self.laserpin,GPIO.OUT)
         GPIO.output(self.laserpin,GPIO.LOW)
 
@@ -85,6 +87,7 @@ class Targeter():
         self.t_r = self.target_data["turrets"][str(self.target)]['r']
         self.t_ang = self.target_data["turrets"][str(self.target)]['theta']
         self.t_ang = Targeter.TMath.rad2deg(self.t_ang)
+        self.g_z = 10 # placeholder
         return (self.t_r, self.t_ang)
 
     def cycle_targets(self):
@@ -138,7 +141,8 @@ class Targeter():
                 self.heading = self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
         self.globe_data = self.target_data['globes']
-        for g in range(len(self.globe_data)):
+        for i in range(len(self.globe_data)):
+            g = i+1
             if self.stop:
                 print("Aborting")
                 break
