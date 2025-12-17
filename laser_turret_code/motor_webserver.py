@@ -329,13 +329,17 @@ if __name__ == '__main__':
     host = "http://127.0.0.254:8000/positions.json"
     team = 21
     number_of_teams = 20
-    laser_height = 0
+    laser_height = 5.2
 
     # turret targetting setup
     turret_targeter = Targeter(host, team, number_of_teams, laser_height, m1, m2, laserpin)
     team_r, team_ang, team_z = turret_targeter.locate_self()
+    # just for initialization
     turret_targeter.pick_target(1)
     turret_targeter.aim_at_target()
+    # rezero again
+    turret_targeter.yaw_motor.goAngle(0)
+    turret_targeter.pitch_motor.goAngle(0)
 
     # ==========================
     # webserver setup
