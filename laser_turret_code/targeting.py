@@ -83,7 +83,7 @@ class Targeter():
         #self.locate_self()
         self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
-        print (f"I'm at {my_ang} and my target is at {t_ang}")
+        print (f"I'm at {self.my_ang} and my target is at {self.t_ang}")
         return self.heading
 
     def rel_ang(self,m,t): #assumes all turrets are equidistant from center 
