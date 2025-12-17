@@ -11,9 +11,11 @@ from targeting import Targeter
 
 GPIO.setmode(GPIO.BCM)
 
-laser_pin = 12
-GPIO.setup(laser_pin, GPIO.OUT)
-GPIO.output(laser_pin, 0)
+laserpin = 12#change this
+GPIO.setup(laserpin,GPIO.OUT)
+GPIO.output(laserpin,GPIO.LOW)
+
+currentTarget = 1;
 
 # Generate HTML for the web page:
 def web_page():
@@ -73,7 +75,10 @@ def web_page():
         </table>
 
         <button onclick="fireLaser()">Fire</button>
-
+        <br>
+        <button onclick="aimDownList()">Auto</button>
+        <button onclick="stopAimDownList()">Abort</button>
+        
         <script>
         // === polling ===
         async function updatePositions() {{
@@ -120,6 +125,29 @@ def web_page():
             body: JSON.stringify({{}})
           }})
         }}
+        // === Automatic targeting for competition ===
+        async function aimDownList() {{
+            await fetch("/aim_down_list", {{
+                method: "POST",
+                headers: {{ "Content-Type": "application/json" }},
+                body: JSON.stringify({{}})
+            }});
+            console.log("Aim down list triggered");
+        }}
+
+        async function stopAimDownList() {{
+            try {{
+                await fetch("/stop_aim_down_list", {{
+                method: "POST",
+                headers: {{ "Content-Type": "application/json" }},
+                body: JSON.stringify({{}})
+                }});
+            console.log("Stop Aim Down List triggered");
+            }} catch (e) {{
+                console.error("Failed to stop aim down list", e);
+            }}
+        }}
+
 
         // === targeting == 
         async function switchTarget(direction) {{
@@ -146,6 +174,12 @@ def web_page():
         """
 
     return (bytes(html,'utf-8'))   # convert html string to UTF-8 bytes object
+
+def shoot():
+    GPIO.output(laser,GPIO.HIGH)
+    sleep(1)
+    GPIO.output(laser,GPIO.LOW)
+
 
 # ==========================
 # New parser w/ JSON
@@ -223,21 +257,38 @@ def serve_web_page():
             conn.close()
             continue
         elif path == "/fire" and method == "POST":
-            GPIO.output(laser_pin, 1)
-            sleep(3.0)
-            GPIO.output(laser_pin, 0)
+            turret_targeter.fire()
+            # set gpio on laser to high
+            shoot()
 
+            # set timer to zero
+            # have other thread counting timer to turn laser off
         elif path == "/switch" and method == "POST":
             data = parseJSONbody(client_message)
             direction = data.get("direction")
-            temp = turret_targeter.target + int(direction)
+            global currentTarget
+            temp = currentTarget + int(direction)
 
-            if temp > 0 and temp < number_of_teams:
+            if temp > 0 and temp <= number_of_teams:
                 turret_targeter.pick_target(temp)
                 #print(f'going to target {temp} @ {turret_targeter.aim_heading}')
+                currentTarget = temp
                 m1.goAngle(turret_targeter.aim_at_target())
             
             # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
+            conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
+            conn.close()
+            continue
+        elif path == "/stop_aim_down_list" and method == "POST":
+            turret_targeter.stop_aim_down_list()
+            conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
+            conn.close()
+            continue
+
+        elif path == "/aim_down_list" and method == "POST":
+            turret_targeter.start_again()
+            turret_targeter.aim_down_list()
+            
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
@@ -264,25 +315,25 @@ if __name__ == '__main__':
     lock1 = multiprocessing.Lock()
     lock2 = multiprocessing.Lock()
     # Instantiate 2 Steppers:
-    m1 = Stepper(shift_reg, lock2)
-    m2 = Stepper(shift_reg, lock1)
+    m1 = Stepper(shift_reg, lock1)
+    m2 = Stepper(shift_reg, lock2)
 
     m1.zero()
     m2.zero()
 
     # in class
-    # host = "http://192.168.1.254:8000/positions.json"
-    # team = 21
-    # number_of_teams = 22
+    host = "http://192.168.1.254:8000/positions.json"
+    team = 21
+    number_of_teams = 22
 
     # values for local testing
-    host = "http://127.0.0.254:8000/positions.json"
-    team = 2
-    number_of_teams = 20 
+    # host = "http://sying.local:8080/positions.json"
+    # team = 2
+    # number_of_teams = 20 
     laser_height = 0
 
     # turret targetting setup
-    turret_targeter = Targeter(host, team, number_of_teams, laser_height)
+    turret_targeter = Targeter(host, team, number_of_teams, laser_height, m1, m2, laserpin)
     team_r, team_ang, team_z = turret_targeter.locate_self()
     turret_targeter.pick_target(1)
     turret_targeter.aim_at_target()
@@ -303,7 +354,16 @@ if __name__ == '__main__':
     # code can continue doing its thing: 
     try:
         while True:
-            sleep(1)
+            sleep(0.05)
+            if turret_targeter.laser and not lock1.locked():#getting firing state from targeter and motor position state from web thread
+                GPIO.output(laserpin,GPIO.HIGH)
+                sleep(3)
+                turret_targeter.laser = False
+                GPIO.output(laserpin,GPIO.LOW)
+            else:
+                GPIO.output(laserpin,GPIO.LOW)
+
+
     except KeyboardInterrupt:
         GPIO.cleanup() 
         print('Closing socket')
