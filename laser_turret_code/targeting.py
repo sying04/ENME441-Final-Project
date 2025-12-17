@@ -128,7 +128,7 @@ class Targeter():
         if dist == 0:
             return 90
         height_diff = self.g_z - self.my_z
-        return math.degrees(math.atan(height_diff/dist))
+        return -1 * math.degrees(math.atan(height_diff/dist)) # motor direction is flipped for some weird reason
 
 
     def aim_down_list(self):
@@ -179,7 +179,13 @@ class Targeter():
         self.fire(3)
 
         self.yaw_motor.goAngle(self.heading)
-        self.pitch_motor.goAngle(self.pitch)
+
+        self.yaw_motor.lock.acquire()
+
+        try: # manually undoing multiple motors
+            self.pitch_motor.goAngle(self.pitch)
+        finally:
+            self.yaw_motor.lock.release()
 
         sleep(0.1)
         return (self.heading, self.pitch)
