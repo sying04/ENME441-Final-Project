@@ -43,10 +43,10 @@ class Targeter():
                 self.pick_target(n)
                 target_loc = self.locate_target_rad()
                 print(f'Target {n} is at location: {target_loc}')
-    def stop():
+    def stop(self):
         self.stop = True
 
-    def start_again():
+    def start_again(self):
         self.stop = False
 
     class TMath():

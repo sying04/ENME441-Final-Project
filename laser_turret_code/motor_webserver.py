@@ -176,9 +176,9 @@ def web_page():
     return (bytes(html,'utf-8'))   # convert html string to UTF-8 bytes object
 
 def shoot():
-    GPIO.output(laser,GPIO.HIGH)
+    GPIO.output(laserpin,GPIO.HIGH)
     sleep(1)
-    GPIO.output(laser,GPIO.LOW)
+    GPIO.output(laserpin,GPIO.LOW)
 
 
 # ==========================
