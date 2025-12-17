@@ -224,7 +224,7 @@ def serve_web_page():
             continue
         elif path == "/fire" and method == "POST":
             GPIO.output(laser_pin, 1)
-            sleep(3000)
+            sleep(3.0)
             GPIO.output(laser_pin, 0)
 
         elif path == "/switch" and method == "POST":
