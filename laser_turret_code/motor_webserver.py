@@ -28,13 +28,13 @@ def web_page():
         <h2>Motor Control</h2>
 
         <!-- Angle Readouts -->
-        <h3>Pitch Angle: <span id="pitch-angle">?</span>°</h3>
-        <h3>Yaw Angle: <span id="yaw-angle">?</span>°</h3>
+        <p>Pitch Angle: <span id="pitch-angle">?</span>°</p>
+        <p>Yaw Angle: <span id="yaw-angle">?</span>°</p>
 
         <!-- Targeting -->
-        <h3>Current Target: <span id="target">?</span></h3>
-        <h3>Current Target Theta: <span id="target-theta">?</span>°</h3>     
-        <h3>Current Target Height: <span id="target-height">?</span>°</h3>
+        <p>Current Target: <span id="target">?</span></p>
+        <p>Current Target Theta: <span id="target-theta">?</span>°</p>     
+        <p>Current Target Height: <span id="target-height">?</span>°</p>
         <h2>Targeting Controls</h2>
         <div>
         <h3>Manual target cycling</h3>
@@ -179,15 +179,14 @@ def web_page():
 
     return (bytes(html,'utf-8'))   # convert html string to UTF-8 bytes object
 
+"""
 def shoot(t):
     GPIO.output(laserpin,GPIO.HIGH)
     sleep(t)
     GPIO.output(laserpin,GPIO.LOW)
+"""
 
-
-# ==========================
 # New parser w/ JSON
-# ==========================
 def parseJSONbody(data):
     # Find body start
     idx = data.find('\r\n\r\n') + 4

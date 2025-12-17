@@ -132,6 +132,7 @@ class Targeter():
 
 
     def aim_down_list(self):
+        """
         for i in range(self.number_of_teams):
             if self.stop:
                 print("Aborting")
@@ -143,7 +144,7 @@ class Targeter():
                 self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
                 self.fire(3.0)
-
+        """
         self.globe_data = self.target_data['globes']
         for g in range(len(self.globe_data)):
             g
@@ -179,10 +180,10 @@ class Targeter():
         self.fire(3)
 
         self.yaw_motor.goAngle(self.heading)
-
+        sleep(0.05)
         self.yaw_motor.lock.acquire()
 
-        try: # manually undoing multiple motors
+        try: # wait for yaw to finish
             self.pitch_motor.goAngle(self.pitch)
         finally:
             self.yaw_motor.lock.release()
@@ -203,7 +204,7 @@ class Targeter():
     def aim_down_list_test(self):
         self.locate_self()
         hits = 0
-        """
+        
         for i in range(self.number_of_teams):
             if self.stop:
                 print("Aborting")
@@ -229,7 +230,7 @@ class Targeter():
                     
                 else:
                     print('MISS\n')
-        """
+
         self.globe_data = self.target_data['globes']
         globes_hit = 0
         for g in range(len(self.globe_data)):
