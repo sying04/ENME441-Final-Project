@@ -176,7 +176,7 @@ class Targeter():
         self.locate_globe(g)
         self.heading = self.rel_ang(self.my_ang,self.g_ang)
         self.pitch = self.find_pitch()
-        self.fire()
+        self.fire(3)
 
         self.yaw_motor.goAngle(self.heading)
         self.pitch_motor.goAngle(self.pitch)
