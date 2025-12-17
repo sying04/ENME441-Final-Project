@@ -250,7 +250,7 @@ class Targeter():
         print(f'I made {globes_hit} hits out of {len(self.globe_data)} globes')
         self.locate_self()
      
-    def fire(t):
+    def fire(self, t):
         self.laser = True
         GPIO.output(self.laserpin,GPIO.HIGH)
         sleep(t)
