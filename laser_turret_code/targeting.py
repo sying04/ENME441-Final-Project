@@ -2,7 +2,7 @@ import position_json_receiver
 #import motorcontrol
 import json
 import math
-
+import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 
 
