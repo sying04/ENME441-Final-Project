@@ -145,8 +145,8 @@ class Targeter():
                 self.fire(3.0)
 
         self.globe_data = self.target_data['globes']
-        for i in range(len(self.globe_data)):
-            g = i+1
+        for g in range(len(self.globe_data)):
+            g
             if self.stop:
                 print("Aborting")
                 break
@@ -155,7 +155,7 @@ class Targeter():
                 self.pick_globe(self.globe_data[g])
                 self.aim_at_globe(g)
 
-                print(f'Globe {g} is being aimed at with this heading: {self.heading} and this pitch: {self.pitch}')
+                print(f'Globe {g+1} is being aimed at with this heading: {self.heading} and this pitch: {self.pitch}')
                 self.fire(3.0)
             except:
                 print("Globe not found")
