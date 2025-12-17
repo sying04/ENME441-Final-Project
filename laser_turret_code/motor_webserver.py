@@ -271,14 +271,14 @@ if __name__ == '__main__':
     m2.zero()
 
     # in class
-    host = "http://192.168.1.254:8000/positions.json"
-    team = 21
-    number_of_teams = 22
+    # host = "http://192.168.1.254:8000/positions.json"
+    # team = 21
+    # number_of_teams = 22
 
     # values for local testing
-    # host = "http://sying.local:8080/positions.json"
-    # team = 2
-    # number_of_teams = 20 
+    host = "http://127.0.0.254:8000/positions.json"
+    team = 2
+    number_of_teams = 20 
     laser_height = 0
 
     # turret targetting setup
