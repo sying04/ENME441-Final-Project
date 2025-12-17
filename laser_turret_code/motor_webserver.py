@@ -11,7 +11,9 @@ from targeting import Targeter
 
 GPIO.setmode(GPIO.BCM)
 
-currentTarget = 1;
+laser_pin = 12
+GPIO.setup(laser_pin, GPIO.OUT)
+GPIO.output(laser_pin, 0)
 
 # Generate HTML for the web page:
 def web_page():
@@ -220,20 +222,19 @@ def serve_web_page():
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
-       # elif path == "/fire" and method == "POST":
-            # set gpio on laser to high
-            # set timer to zero
-            # have other thread counting timer to turn laser off
+       elif path == "/fire" and method == "POST":
+            GPIO.output(laser_pin, 1)
+            sleep(3000)
+            GPIO.output(laser_pin, 0)
+
         elif path == "/switch" and method == "POST":
             data = parseJSONbody(client_message)
             direction = data.get("direction")
-            global currentTarget
-            temp = currentTarget + int(direction)
+            temp = turret_targeter.target + int(direction)
 
             if temp > 0 and temp < number_of_teams:
                 turret_targeter.pick_target(temp)
                 #print(f'going to target {temp} @ {turret_targeter.aim_heading}')
-                currentTarget = temp
                 m1.goAngle(turret_targeter.aim_at_target())
             
             # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
