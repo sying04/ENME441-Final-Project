@@ -21,8 +21,8 @@ class Targeter():
         self.pitch_motor = pitch_motor
         self.laserpin = laser
         self.stop = False
-        #GPIO.setup(self.laser,GPIO.OUT)
-        GPIO.output(self.laser,GPIO.LOW)
+        #GPIO.setup(self.laserpin,GPIO.OUT)
+        GPIO.output(self.laserpin,GPIO.LOW)
 
     def locate_self_rad(self):
         self.mypos = self.target_data["turrets"][str(self.team)]
