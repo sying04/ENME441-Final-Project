@@ -3,16 +3,26 @@ import position_json_receiver
 import json
 import math
 
+GPIO.setmode(GPIO.BCM)
+
+
+#written for ENME441 by Gurshaan Mann
 class Targeter():
 
 
 
-    def __init__(self, host, team, number_of_teams, laser_height):
+    def __init__(self, host, team, number_of_teams, laser_height, yaw_motor, pitch_motor, laser):
         self.position_receiver = position_json_receiver.PositionReceiver(host)
         self.target_data = self.position_receiver.get_json_data()
         self.team = team
         self.number_of_teams = number_of_teams
         self.my_z = laser_height
+        self.yaw_motor = yaw_motor
+        self.pitch_motor = pitch_motor
+        self.laserpin = laser
+        self.stop = False
+        #GPIO.setup(self.laser,GPIO.OUT)
+        GPIO.output(self.laser,GPIO.LOW)
 
     def locate_self_rad(self):
         self.mypos = self.target_data["turrets"][str(self.team)]
@@ -29,9 +39,14 @@ class Targeter():
         for i in range(self.number_of_teams):
             n = i+1
             if n != self.team:
-                enme441_targeter.pick_target(n)
-                target_loc = enme441_targeter.locate_target_rad()
+                self.pick_target(n)
+                target_loc = self.locate_target_rad()
                 print(f'Target {n} is at location: {target_loc}')
+    def stop():
+        self.stop = True
+
+    def start_again():
+        self.stop = False
 
     class TMath():
         @staticmethod
@@ -75,23 +90,23 @@ class Targeter():
         for i in range(self.number_of_teams):
             n = i+1
             if n != self.team:
-                enme441_targeter.pick_target(n)
-                target_loc = enme441_targeter.locate_target()
+                self.pick_target(n)
+                target_loc = self.locate_target()
                 print(f'Target {n} is at location: {target_loc}')
 
     def aim_at_target(self):
         #self.locate_self()
         self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
-        print (f"I'm at {self.my_ang} and my target is at {self.t_ang}")
+        self.fire()
+        sleep(0.1)
         return self.heading
 
     def rel_ang(self,m,t): #assumes all turrets are equidistant from center 
         arc = abs(t-m)
         arc = min(arc,360-arc)
         absrel = (180-arc)/2 #180 degrees of a triangle minus the arc between target and me, divided by two because one angle is the angle at me, the other is the target.
-        if(t != m):
-            sgn = (t-m)/abs(t-m)
+        sgn = (t-m)/abs(t-m)
         
         quad = self.TMath.which_quad(t-m)
         sgn = (quad-2.5)/abs(quad-2.5)
@@ -112,36 +127,50 @@ class Targeter():
 
     def aim_down_list(self):
         for i in range(self.number_of_teams):
+            if self.stop:
+                print("Aborting")
+                break
             n = i+1
             if n != self.team:
                 self.pick_target(n)
                 self.locate_target()
-                self.aim_heading = self.aim_at_target()
-                print(f'Target {n} is being aimed at with this heading: {self.aim_heading}')
+                self.heading = self.aim_at_target()
+                print(f'Target {n} is being aimed at with this heading: {self.heading}')
+        self.globe_data = self.target_data['globes']
+        for g in range(len(self.globe_data)):
+            if self.stop:
+                print("Aborting")
+                break
+            self.pick_globe(self.globe_data[g])
+            self.aim_at_globe(g)
+
+
     def pick_globe(self, g):
         self.globe = g
 
-    def locate_globe(self):
-        self.g_r = self.target_data["globes"][str(self.globe)]['r']
-        self.g_ang = self.target_data["globes"][str(self.globe)]['theta']
+    def locate_globe(self,g):
+        self.g_r = self.target_data["globes"][g]['r']
+        self.g_ang = self.target_data["globes"][g]['theta']
         self.g_ang = Targeter.TMath.rad2deg(self.g_ang)
-        self.g_z = self.target_data["globes"][str(self.globe)]['z']
+        self.g_z = self.target_data["globes"][g]['z']
         return (self.g_r, self.g_ang, self.g_z)
     
-    def aim_at_globe(self):
+    def aim_at_globe(self,g):
         #self.locate_self()
-        self.locate_globe()
+        self.locate_globe(g)
         self.heading = self.rel_ang(self.my_ang,self.g_ang)
         self.pitch = self.find_pitch()
+        self.fire()
+        sleep(0.1)
         return (self.heading, self.pitch)
                 
                 
 
     def guess_hit(self):
-        if self.aim_heading == 0:
-            return self.my_ang
-        sgn = self.aim_heading/abs(self.aim_heading)
-        arc = 180-abs(self.aim_heading)*2
+        if self.heading == 0:
+            return self.heading
+        sgn = self.heading/abs(self.heading)
+        arc = 180-abs(self.heading)*2
         arc = arc*sgn
         return (self.my_ang-arc)%360
 
@@ -149,12 +178,15 @@ class Targeter():
         self.locate_self()
         hits = 0
         for i in range(self.number_of_teams):
+            if self.stop:
+                print("Aborting")
+                break
             n = i+1
             if n != self.team:
-                enme441_targeter.pick_target(n)
+                self.pick_target(n)
                 self.locate_target()
-                self.aim_heading = enme441_targeter.aim_at_target()
-                print(f'Target {n} is being aimed at with this heading: {self.aim_heading}')
+                self.heading = self.aim_at_target()
+                print(f'Target {n} is being aimed at with this heading: {self.heading}')
                 hit_guess = self.guess_hit()
                 print(f'I think my hit for target {n} was at theta {hit_guess} instead of {self.t_ang}')
                 rel_guess = (hit_guess-self.my_ang)%360
@@ -170,13 +202,36 @@ class Targeter():
                     
                 else:
                     print('MISS\n')
-        nglobes = len(self.target_data['globes'])
+        self.globe_data = self.target_data['globes']
+        globes_hit = 0
+        for g in range(len(self.globe_data)):
+            if self.stop:
+                print("Aborting")
+                break
+            self.pick_globe(self.globe_data[g])
+            self.aim_at_globe(g)
+            hit_guess = self.guess_hit()
+            print(f'I think my hit for globe {g} was at theta {hit_guess} instead of {self.g_ang}')
+            
+            rel_guess = (hit_guess-self.my_ang)%360
+            rel_globe = (self.g_ang-self.my_ang)%360
+            if abs(hit_guess-self.g_ang)<1:
+                globes_hit += 1
+                print()
+            elif abs(180-rel_globe) == abs(180-rel_guess):
+                print('FLIPPED')
+                
+            else:
+                print('MISS\n')
+            print(f'Relative to me that is: {rel_guess} instead of {rel_globe}')
+            print(f'Relative Quadrant is: {self.TMath.which_quad(rel_globe)}')
         print(f'I made {hits} hits out of {self.number_of_teams-1} enemy turrets.')
-        print(f'I made 0 hits out of {nglobes} globes')
+        print(f'I made {globes_hit} hits out of {len(self.globe_data)} globes')
         self.locate_self()
 
     def fire(self):
         self.laser = True
+
     
 
 
@@ -191,25 +246,25 @@ if __name__ == "__main__":
     
     laser_height = 0 
 
-    enme441_targeter = Targeter(host, team, number_of_teams, laser_height)
+    self = Targeter(host, team, number_of_teams, laser_height)
     #We only need to instantiate a Targeter in the main file in a thread, run the aim_down_list function at the start. 
-    #teampos = enme441_targeter.locate_self_rad()
+    #teampos = self.locate_self_rad()
     #All of below is for testing
-    print(f'Json host is: {enme441_targeter.position_receiver.host}')
+    print(f'Json host is: {self.position_receiver.host}')
     #print(f'My team number is {team} and my position is {teampos}')
     
 
-    #enme441_targeter.cycle_targets_rad()
+    #self.cycle_targets_rad()
 
     #print(Targeter.TMath.rad2deg(math.pi/3))
 
-    team_r, team_ang, team_z = enme441_targeter.locate_self()
+    team_r, team_ang, team_z = self.locate_self()
     #print(f'My team number is {team} and my position is (r: {team_r}, theta: {team_ang} degrees, z:{team_z})')
 
-    enme441_targeter.cycle_targets()
+    self.cycle_targets()
     print()
-    #enme441_targeter.aim_down_list()
+    #self.aim_down_list()
     print()
-    enme441_targeter.aim_down_list_test()
+    self.aim_down_list_test()
     print('DONE TESTS FOR TURRETS')
 
