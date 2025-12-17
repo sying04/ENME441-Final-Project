@@ -24,6 +24,7 @@ class Targeter():
         self.stop = False
         self.number_of_teams = len(self.target_data["turrets"])
         self.g_z = 10 #placeholder
+        self.pitch = 0
         #GPIO.setup(self.laserpin,GPIO.OUT)
         GPIO.output(self.laserpin,GPIO.LOW)
 
