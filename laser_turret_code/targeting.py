@@ -144,6 +144,9 @@ class Targeter():
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
                 while self.yaw_motor.lock.acquire(block=False) and self.pitch_motor.lock.acquire(block=False):
                     pass # pause everything else until the motors move to where they need
+
+                self.yaw_motor.lock.release()
+                self.pitch_motor.lock.release()
                 self.fire(3.0)
 
         self.globe_data = self.target_data['globes']
