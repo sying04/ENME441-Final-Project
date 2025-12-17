@@ -228,7 +228,7 @@ def serve_web_page():
                "yaw": m1.getAngle(),
                "target": turret_targeter.target,
                "target-theta": turret_targeter.heading,
-               "target-height": turret_targeter.g_z
+               "target-height": turret_targeter.pitch
             })
             conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n")
             conn.send(response.encode())

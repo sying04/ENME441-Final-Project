@@ -215,7 +215,7 @@ class Targeter():
             if self.stop:
                 print("Aborting")
                 break
-            self.pick_globe(self.globe_data[g])
+            self.pick_globe(g)
             self.aim_at_globe(g)
             hit_guess = self.guess_hit()
             print(f'I think my hit for globe {g} was at theta {hit_guess} instead of {self.g_ang}')
@@ -249,7 +249,7 @@ if __name__ == "__main__":
     number_of_teams = 22
 
     #values for local testing
-    host = "http://127.0.0.254:8000/positions.json"
+    #host = "http://127.0.0.254:8000/positions.json"
     
     laser_height = 0 
 
