@@ -203,6 +203,7 @@ class Targeter():
     def aim_down_list_test(self):
         self.locate_self()
         hits = 0
+        """
         for i in range(self.number_of_teams):
             if self.stop:
                 print("Aborting")
@@ -228,6 +229,7 @@ class Targeter():
                     
                 else:
                     print('MISS\n')
+        """
         self.globe_data = self.target_data['globes']
         globes_hit = 0
         for g in range(len(self.globe_data)):
