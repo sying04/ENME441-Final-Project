@@ -11,11 +11,9 @@ from targeting import Targeter
 
 GPIO.setmode(GPIO.BCM)
 
-laserpin = 12#change this
+laserpin = 12 #change this
 GPIO.setup(laserpin,GPIO.OUT)
 GPIO.output(laserpin,GPIO.LOW)
-
-currentTarget = 1;
 
 # Generate HTML for the web page:
 def web_page():
@@ -274,13 +272,11 @@ def serve_web_page():
         elif path == "/switch" and method == "POST":
             data = parseJSONbody(client_message)
             direction = data.get("direction")
-            global currentTarget
-            temp = currentTarget + int(direction)
+            temp = turret_targeter.target + int(direction)
 
             if temp > 0 and temp <= number_of_teams:
                 turret_targeter.pick_target(temp)
                 #print(f'going to target {temp} @ {turret_targeter.aim_heading}')
-                currentTarget = temp
                 m1.goAngle(turret_targeter.aim_at_target())
             
             # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
@@ -331,14 +327,14 @@ if __name__ == '__main__':
     m2.zero()
 
     # in class
-    host = "http://192.168.1.254:8000/positions.json"
-    team = 21
-    number_of_teams = 22
+    # host = "http://192.168.1.254:8000/positions.json"
+    # team = 21
+    # number_of_teams = 22
 
     # values for local testing
-    # host = "http://sying.local:8080/positions.json"
-    # team = 2
-    # number_of_teams = 20 
+    host = "http://127.0.0.254:8000/positions.json"
+    team = 2
+    number_of_teams = 20
     laser_height = 0
 
     # turret targetting setup
