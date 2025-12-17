@@ -287,7 +287,7 @@ def serve_web_page():
 
         elif path == "/aim_down_list" and method == "POST":
             turret_targeter.start_again()
-            threading.Thread( target=turret_targeter.aim_down_list, daemon=True).start()
+            threading.Thread( target=turret_targeter.aim_down_list(), daemon=True).start()
             
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
