@@ -3,7 +3,6 @@ import position_json_receiver
 import json
 import math
 import RPi.GPIO as GPIO
-from time import sleep
 GPIO.setmode(GPIO.BCM)
 
 
@@ -22,11 +21,8 @@ class Targeter():
         self.pitch_motor = pitch_motor
         self.laserpin = laser
         self.stop = False
-        self.number_of_teams = len(self.target_data["turrets"])
-        self.g_z = 10 #placeholder
-        self.pitch = 0
-        #GPIO.setup(self.laserpin,GPIO.OUT)
-        GPIO.output(self.laserpin,GPIO.LOW)
+        #GPIO.setup(self.laser,GPIO.OUT)
+        GPIO.output(self.laser,GPIO.LOW)
 
     def locate_self_rad(self):
         self.mypos = self.target_data["turrets"][str(self.team)]
@@ -46,10 +42,10 @@ class Targeter():
                 self.pick_target(n)
                 target_loc = self.locate_target_rad()
                 print(f'Target {n} is at location: {target_loc}')
-    def stop_targeting(self):
+    def stop():
         self.stop = True
 
-    def start_again(self):
+    def start_again():
         self.stop = False
 
     class TMath():
@@ -88,7 +84,6 @@ class Targeter():
         self.t_r = self.target_data["turrets"][str(self.target)]['r']
         self.t_ang = self.target_data["turrets"][str(self.target)]['theta']
         self.t_ang = Targeter.TMath.rad2deg(self.t_ang)
-        self.g_z = 10 # placeholder
         return (self.t_r, self.t_ang)
 
     def cycle_targets(self):
@@ -142,15 +137,12 @@ class Targeter():
                 self.heading = self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
         self.globe_data = self.target_data['globes']
-        for i in range(len(self.globe_data)):
-            g = i+1
+        for g in range(len(self.globe_data)):
             if self.stop:
                 print("Aborting")
                 break
             self.pick_globe(self.globe_data[g])
             self.aim_at_globe(g)
-            self.fire()
-            print(f'Globe {g} is being aimed at with this heading: {self.heading} and this pitch: {self.pitch}')
 
 
     def pick_globe(self, g):
@@ -216,7 +208,7 @@ class Targeter():
             if self.stop:
                 print("Aborting")
                 break
-            self.pick_globe(g)
+            self.pick_globe(self.globe_data[g])
             self.aim_at_globe(g)
             hit_guess = self.guess_hit()
             print(f'I think my hit for globe {g} was at theta {hit_guess} instead of {self.g_ang}')
@@ -250,7 +242,7 @@ if __name__ == "__main__":
     number_of_teams = 22
 
     #values for local testing
-    #host = "http://127.0.0.254:8000/positions.json"
+    host = "http://127.0.0.254:8000/positions.json"
     
     laser_height = 0 
 

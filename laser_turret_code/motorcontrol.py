@@ -53,7 +53,7 @@ class Stepper:
 
     # Move to an absolute angle taking the shortest possible path:
     def goAngle(self, angle):
-        diff = angle - self.angle.value
+        diff = (angle - self.angle.value+180)%360 -180
         if diff > 180.0:
             diff = diff - 360.0
         self.rotate(diff)
