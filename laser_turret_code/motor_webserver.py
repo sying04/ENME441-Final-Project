@@ -222,8 +222,7 @@ def serve_web_page():
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
-       elif path == "/fire" and method == "POST":
-            GPIO.output(laser_pin, 1)
+        elif path == "/fire" and method == "POST":GPIO.output(laser_pin, 1):
             sleep(3000)
             GPIO.output(laser_pin, 0)
 
