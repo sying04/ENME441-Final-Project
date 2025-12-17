@@ -200,9 +200,9 @@ def serve_web_page():
             delta = data.get("delta")
 
             if axis == "yaw":
-                m1.rotate(delta / 4096.0 * 360.0)
+                m1.goAngle(delta / 4096.0 * 360.0)
             elif axis == "pitch":
-                m2.rotate(delta / 4096.0 * 360.0)
+                m2.goAngle(delta / 4096.0 * 360.0)
 
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
@@ -230,18 +230,18 @@ def serve_web_page():
             global currentTarget
             temp = currentTarget + int(direction)
 
-            if temp > 1 and temp < 22:
+            if temp > 0 and temp < number_of_teams:
                 turret_targeter.pick_target(temp)
                 #print(f'going to target {temp} @ {turret_targeter.aim_heading}')
                 currentTarget = temp
-                m1.rotate(turret_targeter.aim_at_target())
+                m1.goAngle(turret_targeter.aim_at_target())
             
             # print(f'Target {n} is being aimed at with this heading: {turret_targeter.aim_heading}')
             conn.send(b"HTTP/1.1 200 OK\r\n\r\n")
             conn.close()
             continue
         else:
-            print("Unkown request")
+            print("Unknown request")
 
         #  send webpage by default
         conn.send(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n")

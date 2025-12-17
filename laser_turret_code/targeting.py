@@ -34,17 +34,20 @@ class Targeter():
                 print(f'Target {n} is at location: {target_loc}')
 
     class TMath():
-
+        @staticmethod
         def rad2deg(ang):
             return ang*180/math.pi
-
+        @staticmethod
         def which_quad(ang):
-            quad = 1 
-            if ang>180:
-                quad = quad+2
-            if (ang%180)>90:
-                quad = quad+1
-            return quad
+            ang %= 360
+            if 0 <= ang < 90:
+                return 1
+            elif 90 <= ang < 180:
+                return 2
+            elif 180 <= ang < 270:
+                return 3
+            else:
+                return 4
 
         
         
@@ -77,6 +80,7 @@ class Targeter():
                 print(f'Target {n} is at location: {target_loc}')
 
     def aim_at_target(self):
+        #self.locate_self()
         self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
         return self.heading
@@ -96,19 +100,44 @@ class Targeter():
         rel = absrel*sgn
         return rel
 
+    def find_pitch(self):
+        dist = 2*self.my_r *math.sin(math.radians(abs(self.g_ang-self.my_ang))/2)
+        if dist == 0:
+            return 90
+        height_diff = self.g_z - self.my_z
+        return math.degrees(math.atan(height_diff/dist))
+
 
     def aim_down_list(self):
         for i in range(self.number_of_teams):
             n = i+1
             if n != self.team:
-                enme441_targeter.pick_target(n)
+                self.pick_target(n)
                 self.locate_target()
-                self.aim_heading = enme441_targeter.aim_at_target()
+                self.aim_heading = self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.aim_heading}')
+    def pick_globe(self, g):
+        self.globe = g
+
+    def locate_globe(self):
+        self.g_r = self.target_data["globes"][str(self.globe)]['r']
+        self.g_ang = self.target_data["globes"][str(self.globe)]['theta']
+        self.g_ang = Targeter.TMath.rad2deg(self.g_ang)
+        self.g_z = self.target_data["globes"][str(self.globe)]['z']
+        return (self.g_r, self.g_ang, self.g_z)
+    
+    def aim_at_globe(self):
+        #self.locate_self()
+        self.locate_globe()
+        self.heading = self.rel_ang(self.my_ang,self.g_ang)
+        self.pitch = self.find_pitch()
+        return (self.heading, self.pitch)
                 
                 
 
     def guess_hit(self):
+        if self.aim_heading == 0:
+            return self.my_ang
         sgn = self.aim_heading/abs(self.aim_heading)
         arc = 180-abs(self.aim_heading)*2
         arc = arc*sgn
@@ -139,7 +168,9 @@ class Targeter():
                     
                 else:
                     print('MISS\n')
-        print(f'I made {hits} hits out of {self.number_of_teams-1} turrets.')
+        nglobes = len(self.target_data['globes'])
+        print(f'I made {hits} hits out of {self.number_of_teams-1} enemy turrets.')
+        print(f'I made 0 hits out of {nglobes} globes')
         self.locate_self()
 
     def fire(self):
@@ -154,9 +185,8 @@ if __name__ == "__main__":
     number_of_teams = 22
 
     #values for local testing
-    # host = "http://127.0.0.254:8000/positions.json"
-    # team = 2
-    # number_of_teams = 20
+    host = "http://127.0.0.254:8000/positions.json"
+    
     laser_height = 0 
 
     enme441_targeter = Targeter(host, team, number_of_teams, laser_height)
