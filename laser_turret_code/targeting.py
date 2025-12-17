@@ -103,6 +103,7 @@ class Targeter():
         #self.locate_self()
         self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
+        print (f"I'm at {my_ang} and my target is at {my_ang - t_ang}")
         self.fire()
         sleep(0.1)
         return self.heading
@@ -111,7 +112,7 @@ class Targeter():
         arc = abs(t-m)
         arc = min(arc,360-arc)
         absrel = (180-arc)/2 #180 degrees of a triangle minus the arc between target and me, divided by two because one angle is the angle at me, the other is the target.
-        sgn = (t-m)/abs(t-m)
+        if(t != m): sgn = (t-m)/abs(t-m)
         
         quad = self.TMath.which_quad(t-m)
         sgn = (quad-2.5)/abs(quad-2.5)
