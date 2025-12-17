@@ -142,7 +142,7 @@ class Targeter():
                 # self.locate_target()
                 self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
-               
+                self.fire(3.0)
 
         self.globe_data = self.target_data['globes']
         for g in range(len(self.globe_data)):
