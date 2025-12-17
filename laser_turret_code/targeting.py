@@ -142,14 +142,6 @@ class Targeter():
                 # self.locate_target()
                 self.aim_at_target()
                 print(f'Target {n} is being aimed at with this heading: {self.heading}')
-                self.yaw_motor.lock.acquire()
-                self.pitch_motor.lock.acquire()
-
-                try:
-                    self.fire(3.0)
-                finally:
-                    self.yaw_motor.lock.release()
-                    self.pitch_motor.lock.release()
                
 
         self.globe_data = self.target_data['globes']
@@ -258,11 +250,19 @@ class Targeter():
         self.locate_self()
      
     def fire(self, t):
-        self.laser = True
-        GPIO.output(self.laserpin,GPIO.HIGH)
-        sleep(t)
-        self.laser = False
-        GPIO.output(self.laserpin,GPIO.LOW)
+        self.yaw_motor.lock.acquire()
+        self.pitch_motor.lock.acquire()
+
+        try:
+            self.laser = True
+            GPIO.output(self.laserpin,GPIO.HIGH)
+            sleep(t)
+            self.laser = False
+            GPIO.output(self.laserpin,GPIO.LOW)
+        finally:
+            self.yaw_motor.lock.release()
+            self.pitch_motor.lock.release()
+
 
     
 
