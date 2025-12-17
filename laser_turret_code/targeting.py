@@ -83,13 +83,15 @@ class Targeter():
         #self.locate_self()
         self.locate_target()
         self.heading = self.rel_ang(self.my_ang,self.t_ang)
+        print (f"I'm at {my_ang} and my target is at {t_ang}")
         return self.heading
 
     def rel_ang(self,m,t): #assumes all turrets are equidistant from center 
         arc = abs(t-m)
         arc = min(arc,360-arc)
         absrel = (180-arc)/2 #180 degrees of a triangle minus the arc between target and me, divided by two because one angle is the angle at me, the other is the target.
-        sgn = (t-m)/abs(t-m)
+        if(t != m):
+            sgn = (t-m)/abs(t-m)
         
         quad = self.TMath.which_quad(t-m)
         sgn = (quad-2.5)/abs(quad-2.5)
